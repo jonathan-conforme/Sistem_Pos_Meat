@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.active-sidebar {
+    @apply bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white;
+}
