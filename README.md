@@ -14,5 +14,5 @@ Sistema de gestión para carnicería desarrollado en Laravel.
 3. `php artisan key:generate`
 4. Configurar base de datos en .env
 5. `php artisan migrate --seed`
-# Todos los seeders
+## Migrar los seeders
 php artisan db:seed
