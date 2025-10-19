@@ -16,3 +16,9 @@ Sistema de gestión para carnicería desarrollado en Laravel.
 5. `php artisan migrate --seed`
 ## Migrar los seeders
 1.  `php artisan db:seed`
+## En Tinker:
+1. `php artisan tinker`
+2. `$user = User::find(1);`
+3. `$user->assignRole('administrador');`
+// Verificar
+4. `$user->getRoleNames();`
