@@ -14,11 +14,12 @@
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
             font-family: 'Courier New', monospace;
+            print-color-adjust: exact;
         }
 
         body {
             width: 58mm;
-            margin: 0 auto;
+            margin: 10 auto;
             padding: 1mm;
             font-size: 12px;
             line-height: 1.2;
@@ -32,7 +33,7 @@
             max-width: 56mm;
             margin: 0 auto;
             padding: 0;
-            page-break-inside: avoid;
+
         }
 
         .text-center {
@@ -53,7 +54,7 @@
 
         .divider {
             border-top: 1px dashed #000;
-            margin: 4px 0;
+            margin: 2px 0;
             width: 100%;
         }
 
@@ -67,28 +68,37 @@
         td {
             padding: 2px 1px;
             vertical-align: top;
-            line-height: 1.2;
+            line-height: 1.1;
         }
 
         .col-producto {
             width: 40%;
-            overflow: hidden;
+            text-align: left;
+            /* más consistente */
+            padding-right: 5px;
+            /* un poco de espacio a la derecha */
         }
 
         .col-cantidad {
-            width: 15%;
+            width: 20%;
+            /* más ancho que antes */
             text-align: left;
+            padding-right: 9px;
         }
 
         .col-punit {
             width: 20%;
-            text-align: left;
+            /* más ancho que antes */
+            text-align: right;
+            padding-right: 5px;
         }
 
         .col-total {
-            width: 25%;
-            text-align: left;
+            width: 20%;
+            /* se ajusta el resto */
+            text-align: right;
         }
+
 
         .header {
             margin-bottom: 5px;
@@ -96,8 +106,23 @@
         }
 
         .footer {
-            margin-top: 5px;
+            margin-top: 2px;
             text-align: center;
+        }
+
+        /* Mantiene el tamaño original del logo */
+        .header img {
+            width: 225px;
+            object-fit: contain;
+            border-radius: 50%;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Evita espacio arriba y abajo del logo */
+        .header div[style*="width:120px"] {
+            margin: 0;
+            height: auto;
         }
 
         @media print {
@@ -127,13 +152,23 @@
 </head>
 
 <body>
+    @php
+    $totalPaid = $totalPaid ?? ($sale->payments->sum('amount') ?? 0);
+    $remaining = $remaining ?? (($sale->total ?? $sale->subtotal ?? 0) - $totalPaid);
+    @endphp
+
     <div class="ticket">
         <!-- Encabezado -->
         <div class="header">
             @if($empresa && $empresa->logo)
-            <img src="{{ public_path('storage/' . $empresa->logo) }}"
-                alt="Logo" style="width:220px; display:block; margin:0 auto; height:auto;">
+            <div style="width:120px; height:220px; 
+                display:flex; align-items:center; justify-content:center; margin:0 auto;">
+                <img src="{{ public_path('storage/' . $empresa->logo) }}"
+                    alt="Logo"
+                    style="width:225px; object-fit:contain; border-radius:50%;">
+            </div>
             @endif
+
             <div class="divider"></div>
             <div>{{ $empresa->matriz ?? 'Dirección no especificada' }}</div>
             <div class="text-left">RUC: {{ $empresa->ruc ?? '0000000000001' }}</div>
@@ -166,10 +201,10 @@
             <tbody>
                 @foreach($sale->items as $item)
                 <tr>
-                    <td class="col-producto">{{ $item->product->name ?? 'Producto' }}</td>
-                    <td class="text-left col-cantidad">{{ $item->quantity }}</td>
-                    <td class="text-left col-punit">${{ number_format($item->price_per_unit, 2) }}</td>
-                    <td class="text-left col-total">${{ number_format($item->subtotal, 2) }}</td>
+                    <td class="text-center col-producto">{{ $item->product->name ?? 'Producto' }}</td>
+                    <td class="text-center ">{{ $item->quantity }}</td>
+                    <td class="text-center col-punit">${{ number_format($item->price_per_unit, 2) }}</td>
+                    <td class="text-center col-total">${{ number_format($item->subtotal, 2) }}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -208,6 +243,37 @@
             </tr>
         </table>
 
+        @if($sale->payment_type === 'credit')
+        <div class="divider"></div>
+        <div class="text-center bold">DETALLE DE ABONOS</div>
+        <table>
+            <thead>
+                <tr>
+                    <th class="text-left">Fecha</th>
+                    <th class="text-right">Monto</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($sale->payments as $payment)
+                <tr>
+                    <td>{{ $payment->created_at->format('d-m-Y') }}</td>
+                    <td class="text-right">${{ number_format($payment->amount, 2) }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <table>
+            <tr>
+                <td class="text-left">Total Abonado:</td>
+                <td class="text-right">${{ number_format($totalPaid, 2) }}</td>
+            </tr>
+            <tr>
+                <td class="text-left bold">Saldo Pendiente:</td>
+                <td class="text-right bold">${{ number_format($remaining, 2) }}</td>
+            </tr>
+        </table>
+        @endif
         <div class="divider"></div>
 
         <!-- Pie -->
@@ -220,8 +286,8 @@
         </div>
     </div>
 
-   
-   
+
+
 </body>
 
 </html>

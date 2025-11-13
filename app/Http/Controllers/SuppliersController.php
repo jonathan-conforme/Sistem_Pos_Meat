@@ -20,7 +20,9 @@ class SuppliersController extends Controller
      */
     public function create()
     {
-        return view('suppliers.create');
+        
+        $supplier = suppliers::paginate(10);
+        return view('suppliers.create', compact('supplier'));
     }
 
     /**
@@ -28,9 +30,24 @@ class SuppliersController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        try {
+         $request->validate([
+        'name' => 'required|string|max:255', 
+        'contact_name' => 'required|digits_between:7,15',
+        'phone' => 'required|digits_between:7,15', 
+        'email' => 'required|email|max:255',
+        'address' => 'required|string|max:255',
+        'ruc' => 'required|max:15|unique:suppliers,ruc',
+        'notes' => 'required|nullable|string|max:1000'
 
+        ]);
+        suppliers::create($request->all());
+        return redirect()->route('suppliers.create')->with('success', 'Proveedor registrado');
+return redirect()->back()->with('success', 'Registro guardado correctamente');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Ocurrió un error al guardar el registro');
+    }
+}
     /**
      * Display the specified resource.
      */

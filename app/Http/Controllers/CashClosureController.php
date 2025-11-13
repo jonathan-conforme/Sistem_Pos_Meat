@@ -37,11 +37,11 @@ class CashClosureController extends Controller
         $salesData = Sale::whereDate('created_at', today())
             ->where('created_by', $userId)
             ->selectRaw('
-                COALESCE(SUM(CASE WHEN payment_type = "cash" THEN total ELSE 0 END), 0) as cash,
-                COALESCE(SUM(CASE WHEN payment_type = "card" THEN total ELSE 0 END), 0) as card,
-                COALESCE(SUM(CASE WHEN payment_type = "transfer" THEN total ELSE 0 END), 0) as transfer,
-                COALESCE(SUM(CASE WHEN payment_type = "credit" THEN total ELSE 0 END), 0) as credit,
-                COALESCE(SUM(total), 0) as total,
+                COALESCE(SUM(CASE WHEN payment_type = "cash" THEN subtotal ELSE 0 END), 0) as cash,
+                COALESCE(SUM(CASE WHEN payment_type = "card" THEN subtotal ELSE 0 END), 0) as card,
+                COALESCE(SUM(CASE WHEN payment_type = "transfer" THEN subtotal ELSE 0 END), 0) as transfer,
+                COALESCE(SUM(CASE WHEN payment_type = "credit" THEN subtotal ELSE 0 END), 0) as credit,
+                COALESCE(SUM(subtotal), 0) as total,
                 COUNT(*) as count
             ')
             ->first();
@@ -62,6 +62,7 @@ class CashClosureController extends Controller
     {
         $userId = Auth::id();
 
+
         $request->validate([
 
             'physical_cash' => 'required|numeric|min:0',
@@ -71,19 +72,25 @@ class CashClosureController extends Controller
         try {
             DB::beginTransaction();
 
+
             $salesData = Sale::whereDate('created_at', today())
                 ->where('created_by', $userId)
                 ->selectRaw('
-                    COALESCE(SUM(CASE WHEN payment_type = "cash" THEN total ELSE 0 END), 0) as cash_sales,
-                    COALESCE(SUM(CASE WHEN payment_type = "card" THEN total ELSE 0 END), 0) as card_sales,
-                    COALESCE(SUM(CASE WHEN payment_type = "transfer" THEN total ELSE 0 END), 0) as transfer_sales,
-                    COALESCE(SUM(CASE WHEN payment_type = "credit" THEN total ELSE 0 END), 0) as credit_sales,
-                    COALESCE(SUM(total), 0) as total_sales,
+                    COALESCE(SUM(CASE WHEN payment_type = "cash" THEN subtotal ELSE 0 END), 0) as cash_sales,
+                    COALESCE(SUM(CASE WHEN payment_type = "card" THEN subtotal ELSE 0 END), 0) as card_sales,
+                    COALESCE(SUM(CASE WHEN payment_type = "transfer" THEN subtotal ELSE 0 END), 0) as transfer_sales,
+                    COALESCE(SUM(CASE WHEN payment_type = "credit" THEN subtotal ELSE 0 END), 0) as credit_sales,
+                    COALESCE(SUM(subtotal), 0) as total_sales,
                     COUNT(*) as sales_count
                 ')
                 ->first();
 
-            $initialCash = $request->initial_cash;
+            $closurePending = CashClosure::where('user_id', $userId)
+                ->where('status', 'pending')
+                ->first();
+
+            $initialCash = $closurePending ? $closurePending->initial_cash : 0;
+
             $physicalCash = $request->physical_cash;
             $cashSales = $salesData->cash_sales;
             $totalCash = $initialCash + $cashSales;
@@ -164,11 +171,11 @@ class CashClosureController extends Controller
         $salesData = Sale::whereDate('created_at', today())
             ->where('created_by', $userId)
             ->selectRaw('
-            COALESCE(SUM(CASE WHEN payment_type = "cash" THEN total ELSE 0 END), 0) as cash,
-            COALESCE(SUM(CASE WHEN payment_type = "card" THEN total ELSE 0 END), 0) as card,
-            COALESCE(SUM(CASE WHEN payment_type = "transfer" THEN total ELSE 0 END), 0) as transfer,
-            COALESCE(SUM(CASE WHEN payment_type = "credit" THEN total ELSE 0 END), 0) as credit,
-            COALESCE(SUM(total), 0) as total,
+            COALESCE(SUM(CASE WHEN payment_type = "cash" THEN subtotal ELSE 0 END), 0) as cash,
+            COALESCE(SUM(CASE WHEN payment_type = "card" THEN subtotal ELSE 0 END), 0) as card,
+            COALESCE(SUM(CASE WHEN payment_type = "transfer" THEN subtotal ELSE 0 END), 0) as transfer,
+            COALESCE(SUM(CASE WHEN payment_type = "credit" THEN subtotal ELSE 0 END), 0) as credit,
+            COALESCE(SUM(subtotal), 0) as total,
             COUNT(*) as count
         ')
             ->first();

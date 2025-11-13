@@ -112,6 +112,25 @@
                                                 title="Descargar PDF">
                                                 <i class="fas fa-file-pdf"></i>
                                             </a>
+                                            @php
+                                            $phone = $sale->customer->phone;
+                                            // Quitar cualquier espacio o signo
+                                            $phone = preg_replace('/\D/', '', $phone);
+
+                                            // Agregar prefijo internacional si no existe
+                                            if (substr($phone, 0, 3) !== '593') {
+                                            $phone = '593' . ltrim($phone, '0');
+                                            }
+                                            @endphp
+
+                                            <a href="https://wa.me/{{ $phone }}?text={{ urlencode('Hola ' . $sale->customer->name . ', aquí tu factura: ' . route('pdf.ticket', $sale->id)) }}"
+                                                target="_blank"
+                                                class="text-green-500 hover:text-green-700">
+                                                <i class="fab fa-whatsapp"></i>
+                                            </a>
+
+
+
                                         </div>
                                     </td>
                                 </tr>

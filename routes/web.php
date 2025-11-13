@@ -71,11 +71,11 @@ Route::middleware('auth')->group(function () {
     Route::prefix('cash-closures')->name('cash-closures.')->group(function () {
         // Ruta para el resumen (DEBE IR PRIMERO)
         Route::get('/today-summary', [CashClosureController::class, 'getTodaySummary'])->name('get-today-summary');
-        
+
         // Rutas de apertura
         Route::get('/open', [CashClosureController::class, 'open'])->name('open');
         Route::post('/store-open', [CashClosureController::class, 'storeOpen'])->name('store-open');
-        
+
         // Rutas resource (estándar)
         Route::get('/', [CashClosureController::class, 'index'])->name('index');
         Route::get('/create', [CashClosureController::class, 'create'])->name('create');
@@ -88,6 +88,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/ticket/{saleId}', [PdfController::class, 'generarTicket'])->name('ticket');
         Route::get('/descargar/{saleId}', [PdfController::class, 'descargarTicket'])->name('descargar');
     });
+    Route::get('/credito/factura/{saleId}', [PdfController::class, 'generarFacturaCredito'])->name('pdf.credito.factura');
+
 
     // Facturas
     Route::prefix('invoices')->name('invoices.')->group(function () {
@@ -95,19 +97,21 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}', [InvoiceController::class, 'show'])->name('show');
         Route::get('/{id}/pdf', [InvoiceController::class, 'generatePDF'])->name('pdf');
         Route::get('/{id}/print', [InvoiceController::class, 'print'])->name('print');
+        Route::get('/{id}/whatsapp', [InvoiceController::class, 'sendWhatsAppPDF'])
+            ->name('whatsapp');
     });
 
     // ==================== RUTAS DE CLIENTES Y PRODUCTOS ====================
     Route::resource('customer', CustomerController::class);
     Route::get('/categories/stats', [CategoriesController::class, 'stats'])->name('categories.stats');
     Route::resource('categories', CategoriesController::class);
-
+Route::post('categories/{category}/toggle', [CategoriesController::class, 'toggle'])->name('categories.toggle');
     Route::resource('suppliers', SuppliersController::class);
-    
+
     // Búsqueda de clientes
     Route::get('/customer/search', [CustomerController::class, 'search'])->name('customer.search');
     Route::get('/clientes/buscar/{cedula}', [CustomerController::class, 'buscar'])->name('clientes.buscar');
-    
+
     Route::get('factura', function () {
         return view('factura.index');
     })->name('factura.index');
@@ -128,7 +132,10 @@ Route::middleware('auth')->group(function () {
         Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
         Route::post('register', [RegisteredUserController::class, 'store']);
         Route::resource('products', ProductsController::class);
+        Route::patch('products/{product}/toggle', [ProductsController::class, 'toggle'])
+            ->name('products.toggle');
         Route::resource('customer', CustomerController::class);
         Route::resource('empresa', EmpresaController::class);
+        
     });
 });

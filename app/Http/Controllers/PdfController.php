@@ -31,9 +31,14 @@ class PdfController extends Controller
   public function generar()
     {
         // Tu código existente...
-        $usuario = Auth::user();
-        $pdf = Pdf::loadView('pdf.ticket')
-            ->setPaper([0, 0, 164, 600], 'portrait');
+      $usuario = Auth::user();
+        $pdf = Pdf::loadView('pdf.ticket', [
+            'sale' => null,
+            'empresa' => null,
+            'totalPaid' => 0,
+            'remaining' => 0,
+        ])->setPaper([0, 0, 164, 600], 'portrait');
+
         return $pdf->stream('pdf.ticket');
     }
 
@@ -43,13 +48,16 @@ class PdfController extends Controller
     public function generarTicket($saleId)
     {
         // Obtener la venta con todos los datos
-        $sale = Sale::with(['customer', 'items.product', 'createdBy'])
+        $sale = Sale::with(['customer', 'items.product', 'createdBy','payments'])
             ->findOrFail($saleId);
 
         // Obtener datos de la empresa
         $empresa = Empresa::first();
+        
+                $totalPaid = $sale->payments->sum('amount');
+                $remaining = $sale->subtotal - $totalPaid;
 
-        $pdf = Pdf::loadView('pdf.ticket', compact('sale', 'empresa'))
+        $pdf = Pdf::loadView('pdf.ticket', compact('sale', 'empresa', 'totalPaid', 'remaining'))
             ->setPaper([0, 0, 164, 600], 'portrait'); // Tamaño ticket
 
         return $pdf->stream("ticket-{$sale->sale_number}.pdf");
@@ -64,9 +72,31 @@ class PdfController extends Controller
 
         $empresa = Empresa::first();
 
-        $pdf = Pdf::loadView('pdf.ticket', compact('sale', 'empresa'))
-            ->setPaper([0, 0, 164, 600], 'portrait');
+        $pdf = Pdf::loadView('pdf.ticket', compact('sale', 'empresa', 'totalPaid', 'remaining'))
+            ->setPaper([0, 0, 164, 400], 'portrait');
 
         return $pdf->download("ticket-{$sale->sale_number}.pdf");
     }
+    public function generarFacturaCredito($saleId)
+{
+    $sale = \App\Models\Sale::with([
+        'customer',
+        'items.product',
+        'createdBy',
+        'payments'
+    ])->findOrFail($saleId);
+
+    $empresa = \App\Models\Empresa::first();
+
+    // Calcular totales
+    $totalPaid = $sale->payments->sum('amount');
+    $remaining = $sale->subtotal - $totalPaid;
+
+    // Usamos la misma vista del ticket, pero con abonos
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.ticket', compact('sale', 'empresa', 'totalPaid', 'remaining'))
+        ->setPaper([0, 0, 164, 600], 'portrait');
+
+    return $pdf->stream("credito-{$sale->sale_number}.pdf");
+}
+
 }

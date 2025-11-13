@@ -262,9 +262,12 @@
 
                 <!-- Botones -->
                 <div class="flex justify-center items-center space-x-4">
-                    <button id="printReceipt" type="button" class="py-2 px-3 text-sm font-medium text-gray-500 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
-                        <i class="fas fa-print mr-2"></i>Imprimir
-                    </button>
+                  <!-- Botón básico -->
+  <button id="printTicketBtn" 
+                        class="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow transition-all">
+                    <i class="fas fa-print"></i> Imprimir Ticket
+                </button>
+
                     <button id="newSale" type="button" class="py-2 px-3 text-sm font-medium text-center text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-500 dark:hover:bg-green-600 dark:focus:ring-green-900">
                         <i class="fas fa-plus mr-2"></i>Nueva Venta
                     </button>
@@ -273,6 +276,8 @@
         </div>
     </div>
     <!-- Script de lógica -->
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/print-js@1.6.0/dist/print.min.css">
+<script src="https://cdn.jsdelivr.net/npm/print-js@1.6.0/dist/print.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   
 <script>
@@ -284,34 +289,44 @@ $(document).ready(function() {
 function checkCashStatus() {
     $.get("{{ route('cash-closures.get-today-summary') }}", function(data) {
         console.log('Estado de caja:', data);
-        
+
         if (!data.has_closure) {
-            // No hay caja hoy - mostrar modal de apertura
+            // No hay caja hoy - mostrar modal de apertura inmediatamente
             $('#openCashModal').removeClass('hidden');
-        } else if (data.closure_status === 'completed') {
-            // Caja ya cerrada hoy - mostrar mensaje informativo
+        } 
+        else if (data.closure_status === 'completed') {
+            // Caja ya cerrada hoy - mostrar mensaje informativo y redirigir
             Swal.fire({
                 title: 'Caja Cerrada',
                 text: 'Ya se realizó el cierre de caja para hoy.',
                 icon: 'info',
-                confirmButtonText: 'Aceptar'
+                confirmButtonText: 'Ir al Panel',
+                allowOutsideClick: false,
+                         customClass: {
+                    confirmButton: 'bg-blue-600 hover:bg-blue-800 text-white font-semibold px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300',
+                    popup: 'rounded-2xl shadow-lg'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('dashboard') }}";
+                }
             });
-        } else if (data.closure_status === 'pending') {
-            // Caja abierta - continuar normalmente
+        } 
+        else if (data.closure_status === 'pending') {
             console.log('Caja abierta - continuar operaciones');
         }
     }).fail(function(error) {
         console.error('Error al verificar estado de caja:', error);
-        // En caso de error, permitir continuar
+        // En caso de error, permitir continuar sin bloquear
     });
 }
 
-// Cerrar modal manualmente (opcional)
 function closeCashModal() {
     $('#openCashModal').addClass('hidden');
 }
 </script>
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/print-js@1.6.0/dist/print.min.css">
+<script src="https://cdn.jsdelivr.net/npm/print-js@1.6.0/dist/print.min.js"></script>
 
    <script>
         let cart = [];
@@ -663,10 +678,89 @@ function closeCashModal() {
             successModal.show();
 
             // Configurar botones del modal
-            $('#printReceipt').off('click').on('click', function() {
-                printReceipt(response.sale_id);
-                successModal.hide();
+           $('#printTicketBtn').off('click').on('click', function() {
+    if (response.sale_id) {
+        const printBtn = $(this);
+        const originalText = printBtn.html();
+        
+        // Mostrar estado de carga
+        printBtn.html('<i class="fas fa-spinner fa-spin mr-2"></i> Preparando...').prop('disabled', true);
+        
+        if (typeof printJS !== 'undefined') {
+            printJS({
+                printable: `/pdf/ticket/${response.sale_id}`,
+                type: 'pdf',
+                showModal: true,
+                modalMessage: 'Generando ticket de venta...',
+                frameId: 'printFrame',
+                timeout: 10000, // 10 segundos timeout
+                css: [
+                    'https://cdn.jsdelivr.net/npm/print-js@1.6.0/dist/print.min.css'
+                ],
+                onLoadingStart: function() {
+                    console.log('Iniciando carga del PDF...');
+                },
+                onLoadingEnd: function() {
+                    console.log('PDF listo para imprimir');
+                    // Restaurar botón
+                    printBtn.html(originalText).prop('disabled', false);
+                },
+                onPdfOpen: function() {
+                    console.log('PDF abierto en el visor');
+                },
+                onError: function(error) {
+                    console.error('Error con Print.js:', error);
+                    printBtn.html(originalText).prop('disabled', false);
+                    
+                    Swal.fire({
+                        title: 'Error al Imprimir',
+                        html: `
+                            <p>No se pudo cargar el ticket automáticamente.</p>
+                            <div class="bg-yellow-50 p-3 rounded mt-2 text-sm">
+                                <p><strong>Alternativas:</strong></p>
+                                <p>• Abrir PDF en nueva pestaña</p>
+                                <p>• Descargar y imprimir manualmente</p>
+                            </div>
+                        `,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Abrir PDF',
+                        cancelButtonText: 'Descargar PDF',
+                        customClass: {
+                            confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg mr-2',
+                            cancelButton: 'bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.open(`/pdf/ticket/${response.sale_id}`, '_blank');
+                        } else if (result.dismiss === Swal.DismissReason.cancel) {
+                            // Descargar PDF
+                            window.open(`/pdf/descargar/${response.sale_id}`, '_blank');
+                        }
+                    });
+                },
+                onPrintDialogClose: function() {
+                    console.log('Impresión completada o cancelada');
+                    printBtn.html(originalText).prop('disabled', false);
+                }
             });
+        } else {
+            // Print.js no disponible
+            printBtn.html(originalText).prop('disabled', false);
+            window.open(`/pdf/ticket/${response.sale_id}`, '_blank');
+        }
+    } else {
+        console.error('No hay sale_id para imprimir');
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Error: No se pudo generar el ticket',
+            showConfirmButton: false,
+            timer: 3000
+        });
+    }
+});
 
             $('#newSale').off('click').on('click', function() {
                 successModal.hide();

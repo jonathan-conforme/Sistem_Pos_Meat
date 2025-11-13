@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-app-layout>
     <form method="POST" action="{{ route('admin.register') }}">
         @csrf
 
@@ -120,4 +120,4 @@
 
     <!-- Incluir Font Awesome para los iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</x-guest-layout>
+</x-app-layout>
