@@ -7,6 +7,7 @@
     <title>Sistema de Gestión</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
 </head>
 
 <body class="bg-gray-50 dark:bg-gray-900">
@@ -215,5 +216,16 @@
         </div>
 
 </body>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButton = document.querySelector('[data-drawer-toggle]');
+    const sidebar = document.getElementById('default-sidebar');
+
+    toggleButton.addEventListener('click', function() {
+        sidebar.classList.toggle('-translate-x-full');
+    });
+});
+</script>
 
 </html>

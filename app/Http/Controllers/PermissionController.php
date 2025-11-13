@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class PermissionController extends Controller
 {
@@ -11,11 +12,14 @@ class PermissionController extends Controller
      * Display a listing of the resource.
      */
     
-    public function index()
-    {
-        $permissions = Permission::all();
-        return view('admin.permissions.index', compact('permissions'));
-    }
+  public function index()
+{
+    $roles = Role::with('permissions')->get(); // 👈 agregado
+    $permissions = Permission::all();
+
+    return view('admin.permissions.index', compact('roles', 'permissions'));
+}
+
 
     /**
      * Show the form for creating a new resource.

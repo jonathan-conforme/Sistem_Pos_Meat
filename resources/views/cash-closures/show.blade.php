@@ -28,11 +28,11 @@
     {{-- Calcular totales dinámicos desde las ventas --}}
     @php
     $totals = [
-    'cash' => $sales->where('payment_type', 'cash')->sum('total'),
-    'card' => $sales->where('payment_type', 'card')->sum('total'),
-    'transfer' => $sales->where('payment_type', 'transfer')->sum('total'),
-    'credit' => $sales->where('payment_type', 'credit')->sum('total'),
-    'total' => $sales->sum('total'),
+    'cash' => $sales->where('payment_type', 'cash')->sum('subtotal'),
+    'card' => $sales->where('payment_type', 'card')->sum('subtotal'),
+    'transfer' => $sales->where('payment_type', 'transfer')->sum('subtotal'),
+    'credit' => $sales->where('payment_type', 'credit')->sum('subtotal'),
+    'total' => $sales->sum('subtotal'),
     ];
     @endphp
 
@@ -164,7 +164,7 @@
                         </span>
                     </div>
                     <div class="text-right">
-                        <span class="text-lg font-bold text-gray-900">${{ number_format($sale->total, 2) }}</span>
+                        <span class="text-lg font-bold text-gray-900">${{ number_format($sale->subtotal, 2) }}</span>
                         <p class="text-xs text-gray-500">{{ $sale->created_at->format('H:i') }}</p>
                     </div>
                 </div>

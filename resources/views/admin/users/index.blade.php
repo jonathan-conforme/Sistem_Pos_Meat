@@ -68,43 +68,59 @@
                                     @endforeach
                                 </td>
                                 <td class="flex justify-center items-center gap-2 px-6 py-4">
-                                    <button data-tooltip-target="tooltip-edit-{{ $user->id }}" type="button"
-                                        class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 
-               hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 
-               dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <div id="tooltip-edit-{{ $user->id }}" role="tooltip"
-                                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white 
-               transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip 
-               dark:bg-gray-700">
-                                        Editar usuario
-                                        <div class="tooltip-arrow" data-popper-arrow></div>
+
+                                    <!-- Botón Editar -->
+                                    <div class="relative group">
+                                        <button data-tooltip-target="tooltip-edit-{{ $user->id }}" type="button"
+                                            class="p-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 
+                                                       transition-all duration-200 hover:scale-110 hover:shadow-sm
+                                                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                            title="Editar categoría">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <!-- Tooltip -->
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block">
+                                            <div class="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                                                Editar categoría
+                                                <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <form id="delete-form-{{ $user->id }}" action="{{ route('admin.users.destroy', $user) }}" method="POST" style="display:inline">
                                         @csrf
                                         @method('DELETE')
 
-                                        <!-- Botón para abrir modal con tooltip -->
-                                        <button
-                                            type="button"
-                                            data-modal-target="popup-modal-{{ $user->id }}"
-                                            data-modal-toggle="popup-modal-{{ $user->id }}"
-                                            data-tooltip-target="tooltip-delete-{{ $user->id }}"
-                                            class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 
-               hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 
-               dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
+                                        <!-- Botón Eliminar -->
+                                        <div class="relative group">
+                                            <button
+                                                data-modal-target="popup-modal-{{ $user->id }}"
+                                                data-modal-toggle="popup-modal-{{ $user->id }}"
+                                                type="button"
+                                                class="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 
+               transition-all duration-200 hover:scale-110 hover:shadow-sm
+               focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                                title="Eliminar usuario">
+                                                <!-- Icono de eliminar -->
+                                               
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M4 7h16M9 7V4h6v3m2 4v8a2 2 0 01-2 2H9a2 2 0 01-2-2v-8m8 4a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                               
+                                            </button>
 
-                                        <!-- Tooltip -->
-                                        <div id="tooltip-delete-{{ $user->id }}" role="tooltip"
-                                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white 
-               transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip 
-               dark:bg-gray-700">
-                                            Eliminar usuario
-                                            <div class="tooltip-arrow" data-popper-arrow></div>
+                                            <!-- Tooltip -->
+                                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block">
+                                                <div class="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                                                    Eliminar usuario
+                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                                                </div>
+                                            </div>
                                         </div>
+
 
                                         <!-- Modal -->
                                         <div id="popup-modal-{{ $user->id }}" tabindex="-1"

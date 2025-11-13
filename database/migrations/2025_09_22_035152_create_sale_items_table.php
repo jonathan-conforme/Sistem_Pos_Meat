@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('sale_items', function (Blueprint $table) {
             $table->id();
               $table->enum('sale_mode', ['weight', 'amount', 'unit']);
-            $table->decimal('quantity', 12, 3)->nullable()->comment('Cantidad vendida');
-            $table->float('amount', 12, 2)->nullable()->comment('Monto fijo si aplica');
-            $table->decimal('price_per_unit', 10, 3)->comment('Precio por unidad/lb');
-            $table->decimal('cost_per_unit', 10, 3)->nullable()->comment('Costo por unidad en el momento de venta');
+            $table->float('quantity', 12, 2)->nullable()->comment('Cantidad vendida');
+            $table->decimal('amount', 12, 2)->nullable()->comment('Monto fijo si aplica');
+            $table->float('price_per_unit', 10, 2)->comment('Precio por unidad/lb');
+            $table->float('cost_per_unit', 10, 2)->nullable()->comment('Costo por unidad en el momento de venta');
             $table->decimal('subtotal', 12, 2);
             $table->decimal('profit', 12, 2)->nullable()->comment('Ganancia calculada');
             $table->foreignId('sale_id')->constrained('sales')->onDelete('cascade');

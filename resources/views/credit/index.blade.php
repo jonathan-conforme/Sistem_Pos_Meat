@@ -17,7 +17,9 @@
             <table class="min-w-full text-sm text-left">
                 <thead class="bg-gray-50 border-b text-gray-700 uppercase text-xs">
                     <tr>
-                        <th class="px-4 py-3">F.Emision</th>
+                       
+                        <th class="px-4 py-3">vendedor</th>
+                         <th class="px-4 py-3">F.Emision</th>
                         <th class="px-4 py-3">N.Factura</th>
                         <th class="px-4 py-3">Cliente</th>
                         <th class="px-4 py-3">Total</th>
@@ -29,11 +31,14 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @foreach($sales as $sale)
-                    <tr class="hover:bg-gray-50 transition duration-150">
+                    <tr class="hover:bg-gray-50 transition duration-150 text-xs">
+                        <td class="px-4 py-3">
+                                <span class="font-medium text-gray-800">{{ $sale->createdBy->name ?? 'Sistema' }}</span>
+                        </td>
                         <td class="px-4 py-3">{{ $sale->created_at->format('d/m/Y') }}</td>
                         <td class="px-4 py-3 font-medium text-gray-800">{{ $sale->sale_number }}</td>
                         <td class="px-4 py-3">{{ $sale->customer->name ?? 'Consumidor Final' }}</td>
-                        <td class="px-4 py-3 text-gray-800">${{ number_format($sale->total, 2) }}</td>
+                        <td class="px-4 py-3 text-gray-800">${{ number_format($sale->subtotal, 2) }}</td>
                         <td class="px-4 py-3 text-green-600 font-semibold">${{ number_format($sale->total_paid, 2) }}</td>
                         <td class="px-4 py-3 text-red-600 font-semibold">${{ number_format($sale->remaining, 2) }}</td>
                         <td class="px-4 py-3">

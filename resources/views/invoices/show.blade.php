@@ -14,6 +14,9 @@
                     <div class="flex justify-between items-start mb-8">
                         <div>
                             @if($empresa)
+                            <img src="{{ public_path('storage/' . $empresa->logo) }}" 
+                                alt="Logo Empresa" 
+                                class="w-32 h-auto mb-4">
                             <h1 class="text-2xl font-bold text-gray-800">{{ $empresa->razon_social }}</h1>
                             <p class="text-gray-600">RUC: {{ $empresa->ruc }}</p>
                             <p class="text-gray-600">{{ $empresa->matriz }}</p>

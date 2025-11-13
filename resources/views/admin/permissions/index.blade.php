@@ -82,8 +82,6 @@
             </tbody>
         </table>
 
-        <div class="mt-4">
-            {{ $roles->links() }}
-        </div>
+       
     </div>
 </x-app-layout>

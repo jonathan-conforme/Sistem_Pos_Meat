@@ -1,24 +1,77 @@
-*.log
-.DS_Store
-.env
-.env.backup
-.env.production
-.phpactor.json
-.phpunit.result.cache
-/.fleet
-/.idea
-/.nova
-/.phpunit.cache
-/.vscode
-/.zed
-/auth.json
+# Laravel
 /node_modules
-/public/build
 /public/hot
 /public/storage
 /storage/*.key
 /storage/pail
 /vendor
+.env
+.env.*.local
+.env.backup
+.env.production
+.phpunit.result.cache
 Homestead.json
 Homestead.yaml
+
+# Logs
+*.log
+laravel.log
+
+# Operating Systems
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 Thumbs.db
+ehthumbs.db
+[Tt]humbs.db*
+
+# IDE and Editors
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+.phpactor.json
+*.swp
+*.swo
+*~
+
+# Packages
+/node_modules
+/public/build
+/public/vendor
+
+# Composer
+/vendor/
+/composer.lock
+
+# npm
+/node_modules/
+/npm-debug.log*
+/yarn-debug.log*
+/yarn-error.log*
+
+# Laravel specific
+/bootstrap/cache/*
+!/bootstrap/cache/.gitkeep
+/storage/framework/cache/*
+/storage/framework/views/*
+/storage/framework/sessions/*
+!/storage/framework/cache/.gitkeep
+!/storage/framework/views/.gitkeep
+!/storage/framework/sessions/.gitkeep
+
+# Testing
+/coverage
+.phpunit.cache
+
+# Deployment
+/.github
+/deploy.php
+
+# Misc
+/auth.json
+*.sqlite
+*.sqlite-journal

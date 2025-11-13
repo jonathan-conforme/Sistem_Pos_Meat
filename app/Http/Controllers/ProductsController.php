@@ -51,58 +51,60 @@ class ProductsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:100|unique:products,code',
-            'unit_type' => 'required|in:lb,unit,package',
-            'default_cost' => 'required|numeric|min:0',
-            'default_price' => 'required|numeric|min:0',
-            'entry_date' => 'nullable|date',
-            'expiration_date' => 'nullable|date|after_or_equal:entry_date',
-            'quantity' => 'required|numeric|min:0',
-            'min_stock' => 'nullable|numeric|min:0',
-            'max_stock' => 'nullable|numeric|min:0',
-            'active' => 'required|boolean',
-            'track_quantity' => 'sometimes|boolean',
-            'track_expiration' => 'sometimes|boolean',
+  public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'code' => 'nullable|string|max:100|unique:products,code',
+        'unit_type' => 'required|in:lb,unit,package',
+        'default_cost' => 'required|numeric|min:0',
+        'default_price' => 'required|numeric|min:0',
+        'entry_date' => 'nullable|date',
+        'expiration_date' => 'nullable|date|after_or_equal:entry_date',
+        'quantity' => 'required|numeric|min:0',
+        'min_stock' => 'nullable|numeric|min:0',
+        'max_stock' => 'nullable|numeric|min:0',
+        'active' => 'required|boolean',
+        'track_quantity' => 'sometimes|boolean',
+        'track_expiration' => 'sometimes|boolean',
+    ]);
+
+    try {
+        $sku = Product::generateSKU($validated['name']);
+
+        $product = Product::create($validated + [
+            'sku' => $sku,
+            'created_by' => auth()->id(),
+            'updated_by' => auth()->id(),
         ]);
 
-        try {
-            $sku = Product::generateSKU($validated['name']);
-
-            $product = Product::create($validated + [
-                'sku' => $sku,
-                'created_by' => auth()->id(),
-                'updated_by' => auth()->id(),
-            
+        
+        if ($request->ajax() || $request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Producto creado correctamente.',
+                'product' => $product,
+                'stats' => $this->getProductStats()
             ]);
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Producto creado correctamente.',
-                    'product' => $product,
-                     'stats' => $this->getProductStats() // ← Enviar stats actualizadas
-                ]);
-            }
-
-            return redirect()->route('admin.products.index')
-                ->with('success', 'Producto creado correctamente.');
-        } catch (\Exception $e) {
-            \Log::error('Error al crear producto: ' . $e->getMessage());
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error al crear el producto: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return back()->withErrors(['error' => 'Error al crear el producto: ' . $e->getMessage()]);
         }
+
+        
+        return redirect()->route('admin.products.index')
+            ->with('success', 'Producto creado correctamente.');
+
+    } catch (\Exception $e) {
+        \Log::error('Error al crear producto: ' . $e->getMessage());
+
+        if ($request->ajax() || $request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear el producto: ' . $e->getMessage()
+            ], 500);
+        }
+
+        return back()->withErrors(['error' => 'Error al crear el producto: ' . $e->getMessage()]);
     }
+}
 
     /**
      * Display the specified resource.
@@ -115,16 +117,27 @@ class ProductsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Product $product): View
-    {
-        return view('products.edit', compact('product'));
+    public function edit(Request $request, Product $product)
+{
+    // Si la petición viene de AJAX, devolvemos JSON
+    if ($request->expectsJson()) {
+        return response()->json([
+            'success' => true,
+            'product' => $product
+        ]);
     }
+
+    // Si no, devolvemos la vista normalmente
+    return view('products.edit', compact('product'));
+}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Product $product): RedirectResponse
-    {
+ public function update(Request $request, Product $product)
+{
+    try {
+        // Validación
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'sku' => 'required|string|max:100|unique:products,sku,' . $product->id,
@@ -136,13 +149,49 @@ class ProductsController extends Controller
             'active' => 'required|boolean',
         ]);
 
+        // Actualizar
         $product->update($validated + [
             'updated_by' => auth()->id()
         ]);
 
+        //  Respuesta JSON (para fetch)
+        if ($request->ajax() || $request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Producto actualizado correctamente.',
+                'product' => $product
+            ]);
+        }
+
+        // Respuesta normal (form tradicional)
         return redirect()->route('admin.products.create')
             ->with('success', 'Producto actualizado correctamente.');
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Devolver errores de validación correctamente
+        if ($request->ajax() || $request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors(),
+                'message' => 'Errores de validación.'
+            ], 422);
+        }
+
+        throw $e; 
+    } catch (\Throwable $th) {
+        \Log::error('Error al actualizar producto: ' . $th->getMessage());
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el producto: ' . $th->getMessage()
+            ], 500);
+        }
+
+        return back()->withErrors(['error' => 'Error al actualizar el producto: ' . $th->getMessage()]);
     }
+}
+
 
     /**
      * Remove the specified resource from storage.
@@ -154,4 +203,39 @@ class ProductsController extends Controller
         return redirect()->route('admin.products.create')
             ->with('success', 'Producto eliminado correctamente.');
     }
+    /**
+ * Cambia el estado activo/inactivo del producto (AJAX).
+ */
+public function toggle(Product $product)
+{
+    try {
+        // Cambiar el estado actual
+        $product->active = !$product->active;
+        $product->updated_by = auth()->id();
+        $product->save();
+
+        // Recalcular estadísticas
+        $stats = [
+            'totalProducts' => Product::count(),
+            'activeProducts' => Product::where('active', true)->count(),
+            'inactiveProducts' => Product::where('active', false)->count(),
+        ];
+
+        return response()->json([
+            'success' => true,
+            'message' => $product->active ? 'Producto activado correctamente.' : 'Producto desactivado correctamente.',
+            'product' => [ // Incluimos el producto con el estado actual
+                'id' => $product->id,
+                'active' => $product->active
+            ],
+            'stats' => $stats
+        ]);
+    } catch (\Throwable $th) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error interno: ' . $th->getMessage()
+        ], 500);
+    }
+}
+
 }

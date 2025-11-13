@@ -55,7 +55,7 @@ public function getTotalPaidAttribute()
 
 public function getRemainingAttribute()
 {
-    return $this->total - $this->total_paid;
+    return $this->subtotal - $this->total_paid;
 }
 
 }

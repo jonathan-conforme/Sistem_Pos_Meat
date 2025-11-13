@@ -295,5 +295,27 @@ class CategoriesController extends Controller
         ], 500);
     }
 }
+/**
+ * Toggle the active status of the category.
+ */
+public function toggle(Categories $category): JsonResponse
+{
+    try {
+        $category->update(['is_active' => !$category->is_active]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Estado de la categoría actualizado exitosamente',
+            'category' => $category->fresh()
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Error toggling category: ' . $e->getMessage());
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al cambiar el estado de la categoría: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }
 

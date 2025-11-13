@@ -8,7 +8,7 @@ use App\Models\sale_items;
 use App\Models\Customer;  // ← Cambiado de 'customer' a 'Customer'
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;  // ← Cambiado de 'barryvdh' a 'Barryvdh'
-
+use Illuminate\Support\Facades\Storage;
 class InvoiceController extends Controller
 {
     /**
@@ -103,4 +103,41 @@ class InvoiceController extends Controller
 
         return view('invoices.print', compact('sales', 'empresa')); // ← Y aquí también
     }
+    public function sendWhatsAppPDF($id)
+{
+    $sale = Sale::with(['customer', 'items.product', 'createdBy'])->findOrFail($id);
+
+    $empresa = Empresa::first();
+
+    // Validar que el cliente tenga teléfono
+    if (!$sale->customer || !$sale->customer->phone) {
+        return back()->with('error', 'El cliente no tiene número de WhatsApp registrado.');
+    }
+
+    // Generar PDF usando tu vista actual de ticket
+    $pdf = Pdf::loadView('pdf.ticket', compact('sale', 'empresa'));
+
+    // Nombre y ruta del archivo temporal
+    $fileName = 'ticket_' . $sale->sale_number . '.pdf';
+    $filePath = 'tickets/' . $fileName;
+
+    // Guardar en storage público
+    Storage::disk('public')->put($filePath, $pdf->output());
+
+    // Generar URL pública
+    $publicUrl = asset('storage/' . $filePath);
+
+    // Crear mensaje prellenado de WhatsApp (puedes agregar total, fecha, etc.)
+    $message = urlencode(
+        "Hola {$sale->customer->name}, gracias por tu compra.\n" .
+        "Factura N°: {$sale->sale_number}\n" .
+        "Total: $" . number_format($sale->subtotal, 2) . "\n" .
+        "Fecha: " . $sale->created_at->format('d/m/Y') . "\n\n" .
+        "Aquí tienes tu ticket en PDF: {$publicUrl}"
+    );
+
+    // Redirigir a WhatsApp Web/App
+    return redirect("https://wa.me/{$sale->customer->phone}?text={$message}");
+}
+
 }

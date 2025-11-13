@@ -28,30 +28,30 @@ class DashboardController extends Controller
         $salesTodayAmount = Sale::whereDate('created_at', today())->sum('total');
 
         $salesThisWeek = Sale::whereBetween('created_at', [
-            now()->startOfWeek(), 
+            now()->startOfWeek(),
             now()->endOfWeek()
         ])->count();
         $salesThisWeekAmount = Sale::whereBetween('created_at', [
-            now()->startOfWeek(), 
+            now()->startOfWeek(),
             now()->endOfWeek()
         ])->sum('total');
 
         $salesThisMonth = Sale::whereMonth('created_at', now()->month)
-                              ->whereYear('created_at', now()->year)
-                              ->count();
+            ->whereYear('created_at', now()->year)
+            ->count();
         $salesThisMonthAmount = Sale::whereMonth('created_at', now()->month)
-                                    ->whereYear('created_at', now()->year)
-                                    ->sum('total');
+            ->whereYear('created_at', now()->year)
+            ->sum('total');
 
         $totalSales = Sale::count();
         $totalSalesAmount = Sale::sum('total');
 
         $lastMonthSales = Sale::whereMonth('created_at', now()->subMonth()->month)
-                             ->whereYear('created_at', now()->subMonth()->year)
-                             ->count();
+            ->whereYear('created_at', now()->subMonth()->year)
+            ->count();
 
-        $salesGrowth = $lastMonthSales > 0 
-            ? (($salesThisMonth - $lastMonthSales) / $lastMonthSales) * 100 
+        $salesGrowth = $lastMonthSales > 0
+            ? (($salesThisMonth - $lastMonthSales) / $lastMonthSales) * 100
             : ($salesThisMonth > 0 ? 100 : 0);
 
         $topProducts = sale_items::select('product_id', DB::raw('SUM(quantity) as total_sold'))
@@ -86,8 +86,8 @@ class DashboardController extends Controller
             ->where('created_by', $userId)
             ->where('status', 'completed')
             ->get();
-            
-        $myTodayProfit = $myTodaySales->sum(function($sale) {
+
+        $myTodayProfit = $myTodaySales->sum(function ($sale) {
             return $sale->items->sum('profit');
         });
 
@@ -96,16 +96,16 @@ class DashboardController extends Controller
         $todayClosures = CashClosure::today()->with('user')->get();
         $activeUsers = User::count(); // contamos todos los usuarios
 
-        
+
         $totalSalesToday = Sale::whereDate('created_at', today())
             ->where('status', 'completed')
             ->sum('total');
-            
+
         $totalProfitToday = Sale::with('items')
             ->whereDate('created_at', today())
             ->where('status', 'completed')
             ->get()
-            ->sum(function($sale) {
+            ->sum(function ($sale) {
                 return $sale->items->sum('profit');
             });
 
@@ -154,6 +154,10 @@ class DashboardController extends Controller
     }
 
     // Métodos AJAX (sin cambios)
-    public function getStats(): \Illuminate\Http\JsonResponse { /* ... */ }
-    public function getChartData(): \Illuminate\Http\JsonResponse { /* ... */ }
+    public function getStats(): \Illuminate\Http\JsonResponse
+    { /* ... */
+    }
+    public function getChartData(): \Illuminate\Http\JsonResponse
+    { /* ... */
+    }
 }
