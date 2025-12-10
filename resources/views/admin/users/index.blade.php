@@ -102,7 +102,7 @@
                                                 class="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 
                transition-all duration-200 hover:scale-110 hover:shadow-sm
                focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                                title="Eliminar usuario">
+                                                >
                                                 <!-- Icono de eliminar -->
                                                
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

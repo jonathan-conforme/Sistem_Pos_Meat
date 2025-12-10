@@ -14,14 +14,31 @@ class InvoiceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $sales = Sale::with(['customer', 'items.product', 'createdBy'])
-                    ->latest()
-                    ->paginate(20);
-        
-        return view('invoices.index', compact('sales'));
+  public function index(Request $request)
+{
+    $query = Sale::with(['customer', 'items.product', 'createdBy'])
+                 ->latest();
+
+    // 🔹 Filtro de búsqueda opcional
+    if ($search = $request->query('search')) {
+        $query->where(function($q) use ($search) {
+            $q->where('sale_number', 'like', "%{$search}%")
+              ->orWhereHas('customer', function($q2) use ($search) {
+                  $q2->where('name', 'like', "%{$search}%")
+                     ->orWhere('cedula', 'like', "%{$search}%");
+              });
+        });
     }
+
+    // 🔹 Clonar la consulta para obtener total antes de paginar
+    $totalSales = (clone $query)->count();
+
+    // 🔹 Obtener resultados paginados
+    $sales = $query->paginate(20)->withQueryString(); // Mantiene parámetros de búsqueda en la paginación
+
+    return view('invoices.index', compact('sales', 'totalSales'));
+}
+
 
     /**
      * Show the form for creating a new resource.

@@ -104,7 +104,9 @@ Route::middleware('auth')->group(function () {
     // ==================== RUTAS DE CLIENTES Y PRODUCTOS ====================
     Route::resource('customer', CustomerController::class);
     Route::get('/categories/stats', [CategoriesController::class, 'stats'])->name('categories.stats');
-    Route::resource('categories', CategoriesController::class);
+    Route::get('/categories/create', [CategoriesController::class, 'create'])->name('categories.create');
+
+    Route::resource('categories', CategoriesController::class)->except(['create']);
 Route::post('categories/{category}/toggle', [CategoriesController::class, 'toggle'])->name('categories.toggle');
     Route::resource('suppliers', SuppliersController::class);
 

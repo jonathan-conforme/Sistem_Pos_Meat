@@ -6,7 +6,7 @@ use App\Models\Sale;
 use App\Models\sale_items;
 use App\Models\Customer;
 use App\Models\Empresa;
-use App\Models\categories;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\Suppliers;
 use App\Models\User;
@@ -69,7 +69,7 @@ class DashboardController extends Controller
         $invoicesThisMonth = $salesThisMonth;
         $totalCustomers = Customer::count();
         $totalCompanies = Empresa::count();
-        $totalCategories = categories::count();
+        $totalCategories = Category::count();
         $totalProducts = Product::count();
         $totalSuppliers = Suppliers::count();
         $totalUsers = User::count();

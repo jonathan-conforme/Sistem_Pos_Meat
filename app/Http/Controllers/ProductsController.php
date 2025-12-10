@@ -6,7 +6,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
-use App\Models\categories;
+use App\Models\Category;
 
 class ProductsController extends Controller
 {
@@ -29,7 +29,7 @@ class ProductsController extends Controller
     public function create(): View
     {
         $products = Product::latest()->paginate(25);
-        $categories = categories::active()
+        $categories = Category::active()
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get();
@@ -67,8 +67,11 @@ class ProductsController extends Controller
         'active' => 'required|boolean',
         'track_quantity' => 'sometimes|boolean',
         'track_expiration' => 'sometimes|boolean',
-    ]);
-
+    ], [
+    // Mensajes personalizados SOLO para este controller
+    'code.unique' => 'Este código ya existe en el inventario. Por favor ingresa uno diferente.',
+    'expiration_date.after_or_equal' => 'La fecha de caducidad debe ser igual o posterior a la fecha de ingreso.',
+]);
     try {
         $sku = Product::generateSKU($validated['name']);
 
@@ -146,7 +149,20 @@ class ProductsController extends Controller
             'default_cost' => 'required|numeric|min:0',
             'default_price' => 'required|numeric|min:0',
             'quantity' => 'required|numeric|min:0',
+            'entry_date' => 'nullable|date',
+            'expiration_date' => 'nullable|date|after_or_equal:entry_date',
             'active' => 'required|boolean',
+            'min_stock' => 'nullable|numeric|min:0',
+            'max_stock' => 'nullable|numeric|min:0',    
+            'track_quantity' => 'sometimes|boolean',
+            'track_expiration' => 'sometimes|boolean',
+
+
+        ], [
+            'sku.unique' => 'Este SKU ya existe en el inventario. Por favor ingresa uno diferente.',
+            'code.unique' => 'Este código ya existe en otro producto. Por favor ingresa uno diferente.',
+            'expiration_date.after_or_equal' => 'La fecha de caducidad debe ser igual o posterior a la fecha de ingreso.',
+  
         ]);
 
         // Actualizar

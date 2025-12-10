@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class categories extends Model
+class Category extends Model
 {
      use SoftDeletes;
 
@@ -40,7 +40,7 @@ class categories extends Model
      */
     public function children(): HasMany
     {
-        return $this->hasMany(categories::class, 'parent_id');
+        return $this->hasMany(Category::class, 'parent_id');
     }
 
     /**
@@ -48,7 +48,7 @@ class categories extends Model
      */
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(Categories::class, 'parent_id');
+        return $this->belongsTo(Category::class, 'parent_id');
     }
 
     /**

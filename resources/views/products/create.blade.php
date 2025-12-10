@@ -6,7 +6,7 @@
                 <h1 class="text-2xl font-bold text-gray-900">Gestión de Productos</h1>
                 <p class="text-gray-600">Administra los productos de tu sistema</p>
             </div>
-            <button data-modal-target="form-modal" data-modal-toggle="form-modal" class="group text-sm border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white font-medium py-2.5 px-5 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 btn-hover-effect flex items-center">
+            <button onclick="openCreate()" class="group text-sm border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white font-medium py-2.5 px-5 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 btn-hover-effect flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 w-5 h-5 text-green-500 hover:scale-110 hover:text-white transition duration-75 dark:text-white group-hover:text-white dark:group-hover:text-white mr-2" aria-hidden="true" fill="currentColor" viewBox="0 0 25 25">
                     <path fill-rule="evenodd" d="M5.25 2.25a3 3 0 0 0-3 3v4.318a3 3 0 0 0 .879 2.121l9.58 9.581c.92.92 2.39 1.186 3.548.428a18.849 18.849 0 0 0 5.441-5.44c.758-1.16.492-2.629-.428-3.548l-9.58-9.581a3 3 0 0 0-2.122-.879H5.25ZM6.375 7.5a1.125 1.125 0 1 0 0-2.25 1.125 1.125 0 0 0 0 2.25Z" clip-rule="evenodd" />
                 </svg> Registrar Producto
@@ -76,11 +76,12 @@
             </div>
         </div>
         <!-- Modal Principal de Producto -->
-        <div id="form-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full h-full">
-            <div class="modal-content relative bg-white rounded-lg shadow-lg max-w-4xl w-full max-h-[95vh] overflow-y-auto">
+     <div id="form-modal"
+     class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full h-full">
+    <div class="modal-content relative bg-white rounded-lg shadow-lg max-w-4xl w-full max-h-[95vh] overflow-y-auto">
                 <!-- Encabezado del modal -->
                 <div class="flex items-center justify-between p-6 border-b rounded-t bg-gray-50">
-                    <h3 class="text-xl font-semibold text-gray-900">Registrar Nuevo Producto</h3>
+                    <h3 id="modal-title" class="text-xl font-semibold text-gray-900">Registrar Nuevo Producto</h3>
                     <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="form-modal">
                         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
@@ -404,6 +405,11 @@
                 <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
                     Filtrar
                 </button>
+                <a href="{{ route('admin.products.index') }}"
+   class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center justify-center">
+    Limpiar
+</a>
+
             </form>
         </div>
 
@@ -427,7 +433,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">P.Venta</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                        
+
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -476,14 +482,23 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-align font-medium space-x-2">
-                                <div class="flex space-x-4 justify-center">
-                                    <button
-                                        onclick="editProduct({{ $product->id }})"
-                                        class="text-blue-600 hover:text-blue-900 flex items-center space-x-1">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                </div>
-
+                                <div class="relative group">
+                                    <div class="flex space-x-4 justify-center">
+                                        <button
+                                            onclick="editProduct({{ $product->id }})"
+                                            class="p-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 
+                                                       transition-all duration-200 hover:scale-110 hover:shadow-sm
+                                                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                    <!-- Tooltip -->
+                                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block">
+                                        <div class="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                                            Editar Producto
+                                            <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                                        </div>
+                                    </div>
                             </td>
 
 
@@ -507,394 +522,343 @@
         @endif
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('✅ Script cargado correctamente');
+ <script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ Script cargado correctamente');
 
-            /* --------------------------------------------------------------------------
-             * 🔧 ELEMENTOS PRINCIPALES Y MODAL
-             * -------------------------------------------------------------------------- */
-            const modalEl = document.getElementById('form-modal');
-            const formModal = new Modal(modalEl);
-            const form = document.getElementById('product-form');
-            const saveBtn = document.getElementById('save-product-btn');
+    /* --------------------------------------------------------------------------
+     * 🔧 ELEMENTOS PRINCIPALES Y MODAL
+     * -------------------------------------------------------------------------- */
+    const modalEl = document.getElementById('form-modal');
+    const formModal = new Modal(modalEl);
+    const form = document.getElementById('product-form');
+    const saveBtn = document.getElementById('save-product-btn');
 
-            /* --------------------------------------------------------------------------
-             * 🔠 GENERAR SKU AUTOMÁTICAMENTE SEGÚN EL NOMBRE
-             * -------------------------------------------------------------------------- */
-            document.getElementById('name').addEventListener('input', async function() {
-                const name = this.value.trim();
-                const skuInput = document.getElementById('sku');
 
-                if (!name) {
-                    skuInput.value = '';
-                    return;
-                }
+    /* --------------------------------------------------------------------------
+     * ➕ ABRIR MODAL EN MODO CREAR
+     * -------------------------------------------------------------------------- */
+    window.openCreate = function() {
+        setModalMode("create");
 
-                // Toma las primeras 3 letras del nombre
-                const words = name.split(' ').filter(w => w.length > 0);
-                let prefix = words.map(w => w[0].toUpperCase()).join('').slice(0, 3);
-                while (prefix.length < 3) prefix += 'X';
+        form.reset();
+        form.dataset.productId = "";
+        document.getElementById("sku").value = "";
 
-                try {
-                    // Petición al backend para obtener el siguiente SKU disponible
-                    const response = await fetch(`{{ route('admin.products.create') }}?prefix=${prefix}`);
-                    const data = await response.json();
-                    skuInput.value = data.nextSku || `${prefix}-001`;
-                } catch (err) {
-                    console.error('❌ Error al generar SKU:', err);
-                    skuInput.value = `${prefix}-001`;
-                }
+        // Resetear checkboxes
+        document.getElementById("active").checked = true;
+        document.getElementById("track_quantity").checked = false;
+        document.getElementById("track_expiration").checked = false;
+
+        document.getElementById("modal-title").textContent = "Registrar Producto";
+        saveBtn.textContent = "Guardar Producto";
+
+        form.onsubmit = null; // Limpia cualquier editor previo
+
+        formModal.show();
+    };
+
+
+    /* --------------------------------------------------------------------------
+     * 🔠 GENERAR SKU AUTOMÁTICAMENTE SEGÚN EL NOMBRE
+     * -------------------------------------------------------------------------- */
+    document.getElementById('name').addEventListener('input', async function() {
+        const name = this.value.trim();
+        const skuInput = document.getElementById('sku');
+
+        if (!name) {
+            skuInput.value = '';
+            return;
+        }
+
+        const words = name.split(' ').filter(w => w.length > 0);
+        let prefix = words.map(w => w[0].toUpperCase()).join('').slice(0, 3);
+        while (prefix.length < 3) prefix += 'X';
+
+        try {
+            const response = await fetch(`{{ route('admin.products.create') }}?prefix=${prefix}`);
+            const data = await response.json();
+            skuInput.value = data.nextSku || `${prefix}-001`;
+        } catch (err) {
+            console.error('❌ Error al generar SKU:', err);
+            skuInput.value = `${prefix}-001`;
+        }
+    });
+
+
+    /* --------------------------------------------------------------------------
+     * 💾 GUARDAR PRODUCTO (CREATE / UPDATE)
+     * -------------------------------------------------------------------------- */
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const productId = form.dataset.productId || null;
+        await saveProduct(productId);
+    });
+
+    async function saveProduct(productId = null) {
+        console.log('💾 Iniciando guardado...');
+
+        const url = productId ?
+            `/admin/products/${productId}` :
+            "{{ route('admin.products.store') }}";
+
+        const formData = new FormData(form);
+        if (productId) formData.append('_method', 'PUT');
+        formData.append('active', form.querySelector('#active').checked ? 1 : 0);
+
+        const originalBtnContent = saveBtn.innerHTML;
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Guardando...';
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
             });
 
-            /* --------------------------------------------------------------------------
-             * 💾 MANEJO DE FORMULARIO (CREAR Y EDITAR PRODUCTO)
-             * -------------------------------------------------------------------------- */
-
-            // 🔹 Captura el envío del formulario
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault(); // Evita recargar la página
-                const productId = form.dataset.productId || null; // Si tiene data-product-id, edita; si no, crea
-                await saveProduct(productId);
-            });
-
-            // 🔹 Función principal para crear o actualizar producto
-            async function saveProduct(productId = null) {
-                console.log('💾 Iniciando guardado...');
-
-                const url = productId ?
-                    `/admin/products/${productId}` :
-                    "{{ route('admin.products.store') }}";
-
-                const formData = new FormData(form);
-                if (productId) formData.append('_method', 'PUT'); // Laravel necesita esto
-                formData.append('active', form.querySelector('#active').checked ? 1 : 0);
-
-                // 🔄 Desactivar botón
-                const originalBtnContent = saveBtn.innerHTML;
-                saveBtn.disabled = true;
-                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Guardando...';
-
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST', // Laravel usará PUT internamente si tiene _method
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: formData
-                    });
-
-                    let data;
-                    try {
-                        data = await response.json();
-                    } catch {
-                        throw new Error(`Respuesta no válida del servidor (${response.status})`);
-                    }
-
-                    // ⚠️ Validación fallida (422)
-                    if (response.status === 422) {
-                        const messages = Object.values(data.errors || {})
-                            .flat()
-                            .join('\n');
-
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Error de validación',
-                            text: messages || 'Revise los campos obligatorios.',
-                        });
-                        return;
-                    }
-
-                    // ⚠️ Error del servidor
-                    if (!response.ok) {
-                        throw new Error(data.message || `Error ${response.status}`);
-                    }
-
-                    // ✅ Éxito
-                    if (data.success) {
-                        console.log('✅ Producto guardado exitosamente');
-                        formModal.hide();
-                        form.reset();
-                        document.getElementById('sku').value = '';
-
-                        if (typeof addProductToTable === 'function') {
-                            addProductToTable(data.product);
-                        }
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Éxito',
-                            text: data.message || 'Producto guardado correctamente.',
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-                    } else {
-                        throw new Error(data.message || 'Error desconocido del servidor.');
-                    }
-
-                } catch (error) {
-                    console.error('❌ Error al guardar producto:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: error.message || 'Ocurrió un problema al guardar el producto.'
-                    });
-                } finally {
-                    saveBtn.disabled = false;
-                    saveBtn.innerHTML = originalBtnContent;
-                }
+            let data;
+            try {
+                data = await response.json();
+            } catch {
+                throw new Error(`Respuesta no válida del servidor (${response.status})`);
             }
 
-            /* --------------------------------------------------------------------------
-             * 🟢🔴 ACTIVAR / DESACTIVAR PRODUCTO (Toggle)
-             * -------------------------------------------------------------------------- */
-            window.toggleProductStatus = async function(id) {
-                console.log('🔁 Toggle de estado para producto:', id);
+            if (response.status === 422) {
+                const messages = Object.values(data.errors || {}).flat().join('\n');
 
-                const button = event.currentTarget;
-                const isCurrentlyActive = button.classList.contains('bg-green-500');
-                const newState = !isCurrentlyActive;
-
-                try {
-                    // Confirmación con SweetAlert2
-                    const confirmed = await Swal.fire({
-                        title: newState ? '¿Activar producto?' : '¿Desactivar producto?',
-                        text: newState ?
-                            'El producto estará disponible para ventas.' : 'El producto dejará de estar disponible para ventas.',
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonText: 'Sí, continuar',
-                        cancelButtonText: 'Cancelar',
-                        customClass: {
-                            popup: 'rounded-lg shadow-xl',
-                            title: 'text-lg font-semibold',
-                            confirmButton: 'px-4 py-2 rounded-lg font-medium bg-green-600 text-white hover:bg-green-700',
-                            cancelButton: 'px-4 py-2 rounded-lg font-medium bg-gray-200 text-gray-700 hover:bg-gray-300'
-                        }
-                    });
-
-                    if (!confirmed.isConfirmed) return;
-
-                    // 🟡 Actualización visual inmediata (optimistic UI)
-                    updateProductUI(id, newState);
-
-                    // 📨 Petición al backend
-                    const response = await fetch(`/admin/products/${id}/toggle`, {
-                        method: 'PATCH',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        if (data.stats) updateStats(data.stats);
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: '¡Éxito!',
-                            text: data.message,
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-                    } else {
-                        // 🔴 Revertir cambio si hay error
-                        updateProductUI(id, isCurrentlyActive);
-                        throw new Error(data.message);
-                    }
-                } catch (error) {
-                    console.error('❌ Error en toggle:', error);
-                    updateProductUI(id, isCurrentlyActive);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: error.message || 'No se pudo cambiar el estado del producto.'
-                    });
-                }
-            };
-
-            /* --------------------------------------------------------------------------
-             * ✏️ EDITAR PRODUCTO (Cargar datos en modal)
-             * -------------------------------------------------------------------------- */
-            window.editProduct = async function(productId) {
-                try {
-                    const saveBtn = document.getElementById('save-product-btn');
-                    saveBtn.textContent = 'Actualizar Producto';
-
-                    const response = await fetch(`/admin/products/${productId}/edit`, {
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    });
-                    const data = await response.json();
-
-                    if (!data.product) throw new Error('No se encontraron datos');
-
-                    // Rellenar campos
-                    const p = data.product;
-                    form.querySelector('#name').value = p.name;
-                    form.querySelector('#sku').value = p.sku;
-                    form.querySelector('#code').value = p.code || '';
-                    form.querySelector('#unit_type').value = p.unit_type;
-                    form.querySelector('#default_cost').value = p.default_cost;
-                    form.querySelector('#default_price').value = p.default_price;
-                    form.querySelector('#quantity').value = p.quantity;
-                    form.querySelector('#min_stock').value = p.min_stock;
-                    form.querySelector('#max_stock').value = p.max_stock;
-                    form.querySelector('#entry_date').value = p.entry_date;
-                    form.querySelector('#expiration_date').value = p.expiration_date || '';
-
-                    form.querySelector('#active').checked = p.active;
-                    form.querySelector('#track_quantity').checked = p.track_quantity;
-                    form.querySelector('#track_expiration').checked = p.track_expiration;
-
-                    formModal.show();
-
-                    // Cambiar comportamiento del submit a UPDATE
-                    form.onsubmit = async function(e) {
-                        e.preventDefault();
-                        await saveProduct(productId);
-                    };
-                } catch (err) {
-                    console.error('❌ Error al cargar producto:', err);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'No se pudo cargar la información del producto',
-                        confirmButtonText: 'Cerrar'
-                    });
-                }
-            };
-
-            /* --------------------------------------------------------------------------
-             * 📊 ACTUALIZAR ESTADÍSTICAS DE PRODUCTOS
-             * -------------------------------------------------------------------------- */
-            function updateStats(stats) {
-                const ids = {
-                    totalProducts: 'totalProducts',
-                    activeProducts: 'activeProducts',
-                    inactiveProducts: 'inactiveProducts',
-                    lowStockProducts: 'lowStockProducts'
-                };
-                Object.entries(ids).forEach(([key, id]) => {
-                    const el = document.getElementById(id);
-                    if (el && stats[key] !== undefined) el.textContent = stats[key];
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Error de validación',
+                    text: messages || 'Revise los campos obligatorios.',
+                    timer: 4500,
                 });
+                return;
             }
 
-            /* --------------------------------------------------------------------------
-             * 🧩 ACTUALIZAR LA UI DEL PRODUCTO (estado, badge, switch)
-             * -------------------------------------------------------------------------- */
-            function updateProductUI(productId, isActive) {
-                // Encontrar la fila que contiene el producto (podemos usar el data-id en el div contenedor)
-                const row = document.querySelector(`tr[data-product-id="${productId}"]`);
-                // Pero actualmente no tenemos data-product-id en la fila, así que mejor usamos el botón que tiene el onclick
+            if (!response.ok) throw new Error(data.message || `Error ${response.status}`);
 
-                // En su lugar, podemos buscar el botón que tiene el onclick con el productId
-                const button = document.querySelector(`button[onclick="toggleProductStatus(${productId})"]`);
-                if (!button) return;
+            if (data.success) {
+                console.log('✅ Producto guardado exitosamente');
+                formModal.hide();
+                form.reset();
+                document.getElementById('sku').value = '';
 
-                // El contenedor del toggle y badge es el div con class "flex flex-col ..."
-                const container = button.closest('div');
-
-                // Actualizar el toggle (botón)
-                button.classList.toggle('bg-green-500', isActive);
-                button.classList.toggle('bg-gray-300', !isActive);
-                button.classList.toggle('focus:ring-green-500', isActive);
-                button.classList.toggle('focus:ring-gray-400', !isActive);
-
-                // Actualizar el círculo dentro del toggle
-                const circle = button.querySelector('span:last-child');
-                if (circle) {
-                    circle.classList.toggle('translate-x-8', isActive);
-                    circle.classList.toggle('translate-x-1', !isActive);
+                if (typeof addProductToTable === 'function') {
+                    addProductToTable(data.product);
                 }
 
-                // Actualizar el badge
-                const badge = container.querySelector('.status-badge');
-                if (badge) {
-                    badge.textContent = isActive ? 'Activo' : 'Inactivo';
-                    badge.className = `status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-          }`;
-
-                    // Actualizar el punto del badge
-                    const dot = badge.querySelector('span:first-child');
-                    if (dot) {
-                        dot.className = `w-1.5 h-1.5 rounded-full mr-1 ${
-                  isActive ? 'bg-green-500' : 'bg-red-500'
-              }`;
-                    }
-                }
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: data.message || 'Producto guardado correctamente.',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            } else {
+                throw new Error(data.message || 'Error desconocido del servidor.');
             }
 
-            /* --------------------------------------------------------------------------
-             * ➕ AGREGAR PRODUCTO NUEVO A LA TABLA (sin recargar)
-             * -------------------------------------------------------------------------- */
-            function addProductToTable(product) {
-                const tbody = document.querySelector('tbody');
-                if (!tbody) return;
+        } catch (error) {
+            console.error('❌ Error al guardar producto:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'Ocurrió un problema al guardar el producto.'
+            });
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalBtnContent;
+        }
+    }
 
-                const newRow = document.createElement('tr');
-                newRow.className = 'hover:bg-gray-50';
-                newRow.innerHTML = `
-            <td class="px-6 py-4 text-sm">${product.id}</td>
-            <td class="px-6 py-4 text-sm font-medium">${product.name}</td>
-            <td class="px-6 py-4 text-sm">${product.sku}</td>
-            <td class="px-6 py-4 text-sm">${product.code || 'N/A'}</td>
-            <td class="px-6 py-4 text-sm"><span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">${product.unit_type}</span></td>
-            <td class="px-6 py-4 text-sm">${parseFloat(product.quantity).toFixed(3)}</td>
-            <td class="px-6 py-4 text-sm">$${parseFloat(product.default_cost || 0).toFixed(2)}</td>
-            <td class="px-6 py-4 text-sm">$${parseFloat(product.default_price || 0).toFixed(2)}</td>
-            <td class="px-6 py-4 text-sm">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    product.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }">${product.active ? 'Activo' : 'Inactivo'}</span>
-            </td>
-            <td class="px-6 py-4 text-sm">
-                <button onclick="editProduct(${product.id})" class="text-blue-600 hover:text-blue-900">
-                    <i class="fas fa-edit"></i>
-                </button>
-            </td>
-            <td class="px-6 py-4 text-sm">
-                <button onclick="toggleProductStatus(${product.id})"
-                    class="relative inline-flex items-center h-6 w-11 rounded-full transition-colors duration-300 ${
-                        product.active ? 'bg-green-500' : 'bg-gray-300'
-                    }">
-                    <span class="sr-only">Toggle</span>
-                    <span class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-300 ${
-                        product.active ? 'translate-x-6' : 'translate-x-1'
-                    }"></span>
-                </button>
-            </td>
-        `;
-                tbody.insertBefore(newRow, tbody.firstChild);
-            }
 
-            /* --------------------------------------------------------------------------
-             * 📈 CÁLCULO AUTOMÁTICO DEL MARGEN DE GANANCIA
-             * -------------------------------------------------------------------------- */
-            function updateProfitMargin() {
-                const cost = parseFloat(document.getElementById('default_cost').value) || 0;
-                const price = parseFloat(document.getElementById('default_price').value) || 0;
-                const marginElement = document.getElementById('profit-margin');
-                const margin = cost > 0 && price > cost ? ((price - cost) / cost) * 100 : 0;
+    /* --------------------------------------------------------------------------
+     * 🔁 CONFIGURAR MODO DEL MODAL
+     * -------------------------------------------------------------------------- */
+    function setModalMode(mode = "create") {
+        const title = document.getElementById("modal-title");
 
-                marginElement.querySelector('span:last-child').textContent = `${margin.toFixed(1)}%`;
+        if (mode === "create") {
+            title.textContent = "Registrar Producto";
+            saveBtn.textContent = "Guardar Producto";
+            form.dataset.productId = "";
+            form.reset();
+            document.getElementById('sku').value = "";
+        }
 
-                marginElement.classList.toggle('text-green-600', margin > 50);
-                marginElement.classList.toggle('text-yellow-600', margin > 20 && margin <= 50);
-                marginElement.classList.toggle('text-red-600', margin <= 20);
-            }
+        if (mode === "edit") {
+            title.textContent = "Editar Producto";
+            saveBtn.textContent = "Actualizar Producto";
+        }
+    }
 
-            document.getElementById('default_cost').addEventListener('input', updateProfitMargin);
-            document.getElementById('default_price').addEventListener('input', updateProfitMargin);
+
+    /* --------------------------------------------------------------------------
+     * ✏️ EDITAR PRODUCTO — 100% FUNCIONAL
+     * -------------------------------------------------------------------------- */
+    window.editProduct = async function(productId) {
+        console.log("✏️ Editar producto:", productId);
+
+        setModalMode("edit");
+        form.onsubmit = null; // Limpia comportamiento anterior
+        form.dataset.productId = productId; // Asegura modo editar
+
+        try {
+            const response = await fetch(`/admin/products/${productId}/edit`, {
+                headers: { 'Accept': 'application/json' }
+            });
+
+            const data = await response.json();
+            if (!data.product) throw new Error('No se encontraron datos');
+
+            const p = data.product;
+
+            // Llenar formulario
+            form.querySelector('#name').value = p.name;
+            form.querySelector('#sku').value = p.sku;
+            form.querySelector('#code').value = p.code || '';
+            form.querySelector('#unit_type').value = p.unit_type;
+            form.querySelector('#default_cost').value = p.default_cost;
+            form.querySelector('#default_price').value = p.default_price;
+            form.querySelector('#quantity').value = p.quantity;
+            form.querySelector('#min_stock').value = p.min_stock;
+            form.querySelector('#max_stock').value = p.max_stock;
+            form.querySelector('#entry_date').value = p.entry_date;
+            form.querySelector('#expiration_date').value = p.expiration_date || '';
+
+            form.querySelector('#active').checked = p.active;
+            form.querySelector('#track_quantity').checked = p.track_quantity;
+            form.querySelector('#track_expiration').checked = p.track_expiration;
+
+            formModal.show();
+
+        } catch (err) {
+            console.error('❌ Error al cargar producto:', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo cargar la información del producto',
+            });
+        }
+    };
+
+
+    /* --------------------------------------------------------------------------
+     * 📊 STATS Y TOGGLES (SIN CAMBIOS)
+     * -------------------------------------------------------------------------- */
+    function updateStats(stats) {
+        const ids = {
+            totalProducts: 'totalProducts',
+            activeProducts: 'activeProducts',
+            inactiveProducts: 'inactiveProducts',
+            lowStockProducts: 'lowStockProducts'
+        };
+        Object.entries(ids).forEach(([key, id]) => {
+            const el = document.getElementById(id);
+            if (el && stats[key] !== undefined) el.textContent = stats[key];
         });
-    </script>
+    }
+
+/* -------------------------------------------------------------------------- */
+/* 🟢🔴 ACTIVAR / DESACTIVAR PRODUCTO (Toggle Simple)                         */
+/* -------------------------------------------------------------------------- */
+
+window.toggleProductStatus = async function(id) {
+    console.log('🔁 Toggle sin confirmación para producto:', id);
+
+    const button = event.currentTarget;
+    const isCurrentlyActive = button.classList.contains('bg-green-500');
+    const newState = !isCurrentlyActive;
+
+    // Actualiza visualmente al instante
+    updateProductUI(id, newState);
+
+    try {
+        const response = await fetch(`/admin/products/${id}/toggle`, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+            // Revertir si fallo
+            updateProductUI(id, isCurrentlyActive);
+            console.error("Error:", data.message);
+        }
+
+        // Si tienes estadísticas, actualízalas
+        if (data.stats) updateStats(data.stats);
+
+    } catch (error) {
+        console.error("❌ Error en toggle:", error);
+
+        // Revertir si hay error de red
+        updateProductUI(id, isCurrentlyActive);
+    }
+};
+
+    function updateProductUI(productId, isActive) {
+        const button = document.querySelector(`button[onclick="toggleProductStatus(${productId})"]`);
+        if (!button) return;
+
+        const container = button.closest('td');
+
+        button.classList.toggle('bg-green-500', isActive);
+        button.classList.toggle('bg-gray-300', !isActive);
+
+        const circle = button.querySelector('span:last-child');
+        if (circle) {
+            circle.classList.toggle('translate-x-8', isActive);
+            circle.classList.toggle('translate-x-1', !isActive);
+        }
+
+        const badge = container.parentElement.querySelector('.status-badge');
+        if (badge) {
+            badge.textContent = isActive ? 'Activo' : 'Inactivo';
+            badge.className = `status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            }`;
+
+            const dot = badge.querySelector('span:first-child');
+            if (dot) {
+                dot.className = `w-1.5 h-1.5 rounded-full mr-1 ${
+                    isActive ? 'bg-green-500' : 'bg-red-500'
+                }`;
+            }
+        }
+    }
+
+
+    /* --------------------------------------------------------------------------
+     * 📈 CÁLCULO DEL MARGEN
+     * -------------------------------------------------------------------------- */
+    function updateProfitMargin() {
+        const cost = parseFloat(document.getElementById('default_cost').value) || 0;
+        const price = parseFloat(document.getElementById('default_price').value) || 0;
+        const marginElement = document.getElementById('profit-margin');
+        const margin = cost > 0 && price > cost ? ((price - cost) / cost) * 100 : 0;
+
+        marginElement.querySelector('span:last-child').textContent = `${margin.toFixed(1)}%`;
+
+        marginElement.classList.toggle('text-green-600', margin > 50);
+        marginElement.classList.toggle('text-yellow-600', margin > 20 && margin <= 50);
+        marginElement.classList.toggle('text-red-600', margin <= 20);
+    }
+
+    document.getElementById('default_cost').addEventListener('input', updateProfitMargin);
+    document.getElementById('default_price').addEventListener('input', updateProfitMargin);
+});
+</script>
+
 
 </x-app-layout>

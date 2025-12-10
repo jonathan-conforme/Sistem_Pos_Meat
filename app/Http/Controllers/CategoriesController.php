@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\categories; // Cambiar a singular
+use App\Models\Category; 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
@@ -14,7 +14,7 @@ class CategoriesController extends Controller
      */
   public function index(Request $request)
 {
-    $categories = categories::withCount('products')
+    $categories = Category::withCount('products')
         ->with('parent')
         ->when($request->search, function($query, $search) {
             return $query->search($search);
@@ -34,7 +34,7 @@ class CategoriesController extends Controller
      */
     public function create()
     {
-         $categories = Categories::withCount('products')
+         $categories = Category::withCount('products')
         ->with('parent')
         ->orderBy('sort_order')
         ->orderBy('name')
@@ -60,7 +60,7 @@ class CategoriesController extends Controller
 
             // Generar código automático si no se proporciona
             if (empty($validated['code'])) {
-                $validated['code'] = categories::generateCode($validated['name']);
+                $validated['code'] = Category::generateCode($validated['name']);
             }
 
             // Valores por defecto
@@ -68,7 +68,7 @@ class CategoriesController extends Controller
             $validated['sort_order'] = $validated['sort_order'] ?? 0;
             $validated['color'] = $validated['color'] ?? '#6B7280';
 
-            $category = categories::create($validated);
+            $category = Category::create($validated);
 
             return response()->json([
                 'success' => true,
@@ -96,7 +96,7 @@ class CategoriesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(categories $category) // Cambiar parámetro a singular
+    public function show(Category $category) // Cambiar parámetro a singular
     {
         $category->load(['parent', 'children', 'products']);
         return view('categories.show', compact('category'));
@@ -105,22 +105,22 @@ class CategoriesController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(categories $category) // Cambiar parámetro a singular
-    {
-        $categories = categories::active()
-            ->where('id', '!=', $category->id) // Excluir la categoría actual
-            ->main()
-            ->orderBy('sort_order')
-            ->orderBy('name')
-            ->get();
+public function edit($id)
+{
+    $category = Category::findOrFail($id);
 
-        return view('categories.edit', compact('category', 'categories'));
-    }
+    return response()->json([
+        'success' => true,
+        'category' => $category
+    ]);
+}
+
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, categories $category): JsonResponse
+    public function update(Request $request, Category $category): JsonResponse
     {
         try {
             $validated = $request->validate([
@@ -177,48 +177,49 @@ class CategoriesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(categories $category): JsonResponse
-    {
-        try {
-            // Verificar si la categoría tiene productos
-            if ($category->hasProducts()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No se puede eliminar la categoría porque tiene productos asociados'
-                ], 422);
-            }
-
-            // Verificar si la categoría tiene subcategorías
-            if ($category->children()->exists()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No se puede eliminar la categoría porque tiene subcategorías'
-                ], 422);
-            }
-
-            $category->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Categoría eliminada exitosamente'
-            ]);
-
-        } catch (\Exception $e) {
-            \Log::error('Error deleting category: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al eliminar la categoría: ' . $e->getMessage()
-            ], 500);
+    public function destroy(Category $category)
+{
+    try {
+        if ($category->hasProducts()) {
+            return $this->responseDelete(false, 'No se puede eliminar la categoría porque tiene productos asociados');
         }
+
+        if ($category->children()->exists()) {
+            return $this->responseDelete(false, 'No se puede eliminar la categoría porque tiene subcategorías');
+        }
+
+        $category->delete();
+
+        return $this->responseDelete(true, 'Categoría eliminada exitosamente');
+    } catch (\Exception $e) {
+        \Log::error('Error deleting category: ' . $e->getMessage());
+        return $this->responseDelete(false, 'Error al eliminar la categoría');
     }
+}
+
+private function responseDelete($success, $message)
+{
+    // Si la petición es AJAX (fetch), responde JSON
+    if (request()->ajax()) {
+        return response()->json([
+            'success' => $success,
+            'message' => $message
+        ], $success ? 200 : 422);
+    }
+
+    // Si viene desde formulario (tu caso), redirige
+    return redirect()
+        ->route('categories.create')
+        ->with($success ? 'success' : 'error', $message);
+}
+
 
     /**
      * Obtener categorías para select (API)
      */
     public function getCategoriesForSelect(): JsonResponse
     {
-        $category = categories::active()
+        $category = Category::active()
             ->main()
             ->with(['children' => function($query) {
                 $query->active()->orderBy('sort_order')->orderBy('name');
@@ -236,7 +237,7 @@ class CategoriesController extends Controller
     public function restore($id): JsonResponse
     {
         try {
-            $category = categories::withTrashed()->findOrFail($id);
+            $category = Category::withTrashed()->findOrFail($id);
             $category->restore();
 
             return response()->json([
@@ -257,13 +258,13 @@ class CategoriesController extends Controller
     /**
      * Verificar referencias circulares
      */
-    private function hasCircularReference(categories $category, $parentId): bool
+    private function hasCircularReference(Category $category, $parentId): bool
     {
         if (!$parentId) {
             return false;
         }
 
-        $parent = categories::find($parentId);
+        $parent = Category::find($parentId);
         
         // Verificar si el padre propuesto es un descendiente de la categoría actual
         while ($parent) {
@@ -278,7 +279,7 @@ class CategoriesController extends Controller
    public function stats(): \Illuminate\Http\JsonResponse
 {
     try {
-        $all = \App\Models\Categories::withCount('products')->get();
+        $all = \App\Models\Category::withCount('products')->get();
 
         return response()->json([
             'success' => true,
@@ -298,7 +299,7 @@ class CategoriesController extends Controller
 /**
  * Toggle the active status of the category.
  */
-public function toggle(Categories $category): JsonResponse
+public function toggle(Category $category): JsonResponse
 {
     try {
         $category->update(['is_active' => !$category->is_active]);

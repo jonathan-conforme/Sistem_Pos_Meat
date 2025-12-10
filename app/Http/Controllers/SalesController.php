@@ -18,8 +18,12 @@ class SalesController extends Controller
      */
     public function index()
     {
-        $products = Product::select('id', 'code', 'name', 'default_price')->get();
-        return view('pos.index', compact('products')); 
+        $products = Product::where('active', true)
+            ->select('id', 'code', 'name', 'default_price')
+            ->get();
+
+
+        return view('pos.index', compact('products'));
     }
 
     /**
@@ -64,7 +68,7 @@ class SalesController extends Controller
                 'status' => $request->payment_type === 'credit' ? 'pending' : 'completed',
                 'comments' => $request->comments,
                 'customer_id' => $request->customer_id,
-                'created_by' => Auth::id(),  
+                'created_by' => Auth::id(),
             ]);
 
             foreach ($request->items as $item) {
@@ -96,7 +100,7 @@ class SalesController extends Controller
                 'sale_id' => $sale->id,
                 'sale_number' => $saleNumber,
                 'total_without_iva' => $sale->subtotal,
-                'total_with_iva' => $sale->total       
+                'total_with_iva' => $sale->total
             ]);
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -111,7 +115,7 @@ class SalesController extends Controller
     {
         // Obtener el último número de venta
         $lastSale = Sale::orderBy('id', 'desc')->first();
-        
+
         // Si no hay ventas, empezar desde 1
         if (!$lastSale) {
             $nextNumber = 1;
@@ -120,10 +124,10 @@ class SalesController extends Controller
             $lastNumber = $this->extractSequentialNumber($lastSale->sale_number);
             $nextNumber = $lastNumber + 1;
         }
-        
+
         // Formatear el número (9 dígitos)
         $sequential = str_pad($nextNumber, 9, '0', STR_PAD_LEFT);
-        
+
         // Retornar en formato 001-001-000000012
         return "001-001-{$sequential}";
     }
@@ -137,17 +141,17 @@ class SalesController extends Controller
         if (preg_match('/\d{3}-\d{3}-(\d{9})/', $saleNumber, $matches)) {
             return (int) $matches[1];
         }
-        
+
         // Si el formato es el antiguo (VTA-20251026233650)
         // Buscar venta más reciente con nuevo formato
         $lastNewFormatSale = Sale::where('sale_number', 'like', '001-001-%')
-                                ->orderBy('id', 'desc')
-                                ->first();
-        
+            ->orderBy('id', 'desc')
+            ->first();
+
         if ($lastNewFormatSale) {
             return $this->extractSequentialNumber($lastNewFormatSale->sale_number) + 1;
         }
-        
+
         // Si no hay ventas con nuevo formato, empezar desde el ID actual
         $lastSale = Sale::orderBy('id', 'desc')->first();
         return $lastSale ? $lastSale->id : 1;

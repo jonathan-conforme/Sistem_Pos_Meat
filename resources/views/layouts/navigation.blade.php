@@ -137,23 +137,27 @@
                 @role('administrador|contador|vendedor')
                 <li>
                     <a href="{{ route('invoices.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group sidebar-item {{ request()->routeIs('invoices.*') ? 'active-sidebar' : '' }}">
-                        <i class="fas fa-file-invoice w-5 h-5 text-gray-500"></i>
+                        <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 3v4a1 1 0 0 1-1 1H5m8-2h3m-3 3h3m-4 3v6m4-3H8M19 4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1ZM8 12v6h8v-6H8Z" />
+                        </svg>
                         <span class="ms-3">Facturas</span>
                     </a>
                 </li>
                 @endrole
-                 @role('administrador|contador|vendedor')
+                @role('administrador|contador|vendedor')
                 <li>
                     <a href="{{ route('credit.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group sidebar-item {{ request()->routeIs('credit.*') ? 'active-sidebar' : '' }}">
-                       <!-- Lucide -->
-  <i class="fas fa-file-invoice-dollar w-4 h-4"></i>
+                        <!-- Lucide -->
+                        <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <path fill-rule="evenodd" d="M9 7V2.221a2 2 0 0 0-.5.365L4.586 6.5a2 2 0 0 0-.365.5H9Zm2 0V2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Zm2-2a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2h-3Zm0 3a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2h-3Zm-6 4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-6Zm8 1v1h-2v-1h2Zm0 3h-2v1h2v-1Zm-4-3v1H9v-1h2Zm0 3H9v1h2v-1Z" clip-rule="evenodd" />
+                        </svg>
 
                         <span class="ms-3">Cuentas por cobrar</span>
                     </a>
                 </li>
                 @endrole
 
-               
+
             </ul>
 
             <!-- Sección administrativa - SOLO para administradores -->
@@ -218,14 +222,14 @@
 </body>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const toggleButton = document.querySelector('[data-drawer-toggle]');
-    const sidebar = document.getElementById('default-sidebar');
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButton = document.querySelector('[data-drawer-toggle]');
+        const sidebar = document.getElementById('default-sidebar');
 
-    toggleButton.addEventListener('click', function() {
-        sidebar.classList.toggle('-translate-x-full');
+        toggleButton.addEventListener('click', function() {
+            sidebar.classList.toggle('-translate-x-full');
+        });
     });
-});
 </script>
 
 </html>
