@@ -302,83 +302,7 @@
             if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
         });
 
-        // --- Notificaciones ---
-        function showNotification(message, type = 'info') {
-            const container = document.getElementById('notification-container');
-            const notification = document.createElement('div');
-
-            const styles = {
-                success: 'bg-green-600 text-white border-l-4 border-green-700',
-                error: 'bg-red-600 text-white border-l-4 border-red-700',
-                info: 'bg-blue-600 text-white border-l-4 border-blue-700',
-                warning: 'bg-orange-600 text-white border-l-4 border-orange-700'
-            };
-
-            const duration = notificationDurations[type] || 3000;
-
-            notification.className = `p-4 rounded-lg shadow-lg flex items-center transform transition-all duration-300 translate-x-full opacity-0 ${styles[type]}`;
-            notification.innerHTML = `
-        <span class="flex-1">${message}</span>
-        <button onclick="this.parentElement.remove()" class="ml-4 text-white hover:opacity-70 transition-opacity">&times;</button>
-    `;
-
-            container.appendChild(notification);
-
-            requestAnimationFrame(() => {
-                notification.classList.remove('translate-x-full', 'opacity-0');
-                notification.classList.add('translate-x-0', 'opacity-100');
-            });
-
-            setTimeout(() => {
-                if (notification.parentElement) {
-                    notification.classList.remove('translate-x-0', 'opacity-100');
-                    notification.classList.add('translate-x-full', 'opacity-0');
-                    setTimeout(() => {
-                        if (notification.parentElement) notification.remove();
-                    }, 300);
-                }
-            }, duration);
-        }
-
-        // --- Quitar resaltado de cliente nuevo después de 5 segundos ---
-        document.addEventListener('DOMContentLoaded', function() {
-            const highlightedRow = document.querySelector('.bg-green-50');
-            if (highlightedRow) {
-                setTimeout(() => {
-                    highlightedRow.classList.remove('bg-green-50', 'border-l-4', 'border-green-500');
-                    const newBadge = highlightedRow.querySelector('span');
-                    if (newBadge) {
-                        newBadge.remove();
-                    }
-                }, 5000);
-            }
-        });
-
-        // --- Mostrar modal y errores automáticamente ---
-        @if($errors -> any())
-        document.addEventListener('DOMContentLoaded', () => {
-            openModal(false);
-            let errors = @json($errors -> all());
-            errors.forEach(err => showNotification(err, 'error'));
-        });
-        @endif
-
-        // --- Notificaciones desde sesión ---
-        @if(session('success'))
-        document.addEventListener('DOMContentLoaded', () => showNotification("{{ session('success') }}", 'success'));
-        @endif
-
-        @if(session('error'))
-        document.addEventListener('DOMContentLoaded', () => showNotification("{{ session('error') }}", 'error'));
-        @endif
-        @if(session('info'))
-    document.addEventListener('DOMContentLoaded', () =>
-        showNotification("{{ session('info') }}", 'info')
-    );
-@endif
-        @if(session('warning'))
-        document.addEventListener('DOMContentLoaded', () => showNotification("{{ session('warning') }}", 'warning'));
-        @endif
+        
     </script>
     
     <script>
@@ -401,5 +325,5 @@
         });
         
     </script>
-
+<x-toast />
 </x-app-layout>

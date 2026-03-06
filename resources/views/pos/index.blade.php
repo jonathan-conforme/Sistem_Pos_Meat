@@ -143,6 +143,18 @@
                         <span>Total:</span>
                         <span id="total" class="text-green-600">$0.00</span>
                     </div>
+                    <input
+    type="number"
+    step="0.01"
+    id="amount_paid"
+    placeholder="Monto recibido"
+    class="w-full border rounded p-2"
+>
+<div class="flex justify-between mt-2 font-semibold text-blue-600">
+    <span>Cambio:</span>
+    <span id="change">$0.00</span>
+</div>
+
                 </div>
 
                 <!-- MÉTODOS DE PAGO - RESPONSIVE -->
@@ -265,11 +277,13 @@
                   <!-- Botón básico -->
   <button id="printTicketBtn" 
                         class="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow transition-all">
-                    <i class="fas fa-print"></i> Imprimir Ticket
+                    <i class="fas fa-check text-green-500"></i>
+</i> Imprimir Ticket
                 </button>
 
                     <button id="newSale" type="button" class="py-2 px-3 text-sm font-medium text-center text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-500 dark:hover:bg-green-600 dark:focus:ring-green-900">
-                        <i class="fas fa-plus mr-2"></i>Nueva Venta
+                      <i class="fas fa-check text-green-500"></i>
+  Nueva Venta
                     </button>
                 </div>
             </div>
@@ -473,47 +487,57 @@ function closeCashModal() {
         });
 
         function renderCart() {
-            let html = '';
-            let subtotal = 0;
+    let html = '';
+    let subtotal = 0;
 
-            cart.forEach((item, index) => {
-                const lineTotal = item.price * item.qty;
-                subtotal += lineTotal;
+    cart.forEach((item, index) => {
+        const lineTotal = item.price * item.qty;
+        subtotal += lineTotal;
 
-                html += `
-            <tr class="border-b hover:bg-gray-50 transition">
-                <td class="py-2 px-3">${item.code ?? ''}</td>
-                <td class="py-2 px-3">${item.name}</td>
-                <td class="py-2 px-3 text-right">
-                    <input type="number" step="0.01" value="${item.price}"
-                        class="w-20 text-right border rounded focus:ring focus:ring-green-200"
-                        onchange="updatePrice(${index}, this.value)">
-                </td>
-                <td class="py-2 px-3 text-right">
-                    <input type="number" min="1" value="${item.qty}"
-                        class="w-16 text-right border rounded focus:ring focus:ring-green-200"
-                        onchange="updateQty(${index}, this.value)">
-                </td>
-                <td class="py-2 px-3 text-right">$${lineTotal.toFixed(2)}</td>
-                <td class="py-2 px-3 text-center">
-                    <button onclick="removeItem(${index})" type="button">
-                        <i class="fas fa-trash-alt text-lg text-red-500 hover:text-red-700"></i>
-                    </button>
-                </td>
-            </tr>`;
-            });
+        html += `
+        <tr class="border-b hover:bg-gray-50 transition">
+            <td class="py-2 px-3">${item.code ?? ''}</td>
+            <td class="py-2 px-3">${item.name}</td>
+            <td class="py-2 px-3 text-right">
+                <input type="number" step="0.01" value="${item.price}"
+                    class="w-20 text-right border rounded focus:ring focus:ring-green-200"
+                    onchange="updatePrice(${index}, this.value)">
+            </td>
+            <td class="py-2 px-3 text-right">
+                <input type="number" min="1" value="${item.qty}"
+                    class="w-16 text-right border rounded focus:ring focus:ring-green-200"
+                    onchange="updateQty(${index}, this.value)">
+            </td>
+            <td class="py-2 px-3 text-right">$${lineTotal.toFixed(2)}</td>
+            <td class="py-2 px-3 text-center">
+                <button onclick="removeItem(${index})" type="button">
+                    <i class="fas fa-trash-alt text-lg text-red-500 hover:text-red-700"></i>
+                </button>
+            </td>
+        </tr>`;
+    });
 
-            $('#cartBody').html(html);
+    $('#cartBody').html(html);
 
-            const iva = subtotal * 0.00;
-            const discount = 0;
-            const total = subtotal + iva;
+    const iva = subtotal * 0.15; // IVA 15%
+    const discount = iva; // Por ahora fijo
+    const total = subtotal + iva - discount;
 
-            $('#subtotal').text(`$${subtotal.toFixed(2)}`);
-            $('#iva').text(`$${iva.toFixed(2)}`);
-            $('#discount').text(`-$${discount.toFixed(2)}`);
-            $('#total').text(`$${total.toFixed(2)}`);
-        }
+    // Actualizar panel derecho
+    $('#subtotal').text(`$${subtotal.toFixed(2)}`);
+    $('#iva').text(`$${iva.toFixed(2)}`);
+    $('#discount').text(`-$${discount.toFixed(2)}`);
+    $('#total').text(`$${total.toFixed(2)}`);
+    $('#amount_paid').on('input', function() {
+    renderCart(); // recalcula subtotal, IVA, total y cambio
+});
+
+
+    // Calcular cambio según monto recibido
+    const amountPaid = parseFloat($('#amount_paid').val()) || 0;
+    const change = Math.max(0, amountPaid - total);
+    $('#change').text(`$${change.toFixed(2)}`);
+}
 
         function updateQty(index, value) {
             const newQty = parseInt(value);
@@ -613,6 +637,7 @@ function closeCashModal() {
             const data = {
                 customer_id: currentCustomer ? currentCustomer.id : null,
                 payment_type: selectedPayment,
+                 amount_paid: $('#amount_paid').val() || null,
                 items: cart,
                 _token: '{{ csrf_token() }}'
             };
@@ -835,6 +860,7 @@ function closeCashModal() {
             // O mostrar alerta temporal
             showErrorModal('Función de impresión en desarrollo');
         }
+        
     </script>
 
 </x-app-layout>

@@ -9,8 +9,35 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 </head>
+<style>
+    #sidebar-scroll {
+        visibility: hidden;
+    }
+</style>
 
-<body class="bg-gray-50 dark:bg-gray-900">
+<body class="bg-gray-50 dark:bg-gray-900"
+      x-data="{ loading: false }"
+      x-init="
+        window.addEventListener('beforeunload', () => loading = true);
+        window.addEventListener('pageshow', () => loading = false);
+      ">
+<!-- LOADER ONDAS -->
+<div
+    x-show="loading"
+    x-transition.opacity
+    class="fixed inset-0 z-[99999] flex items-center justify-center bg-[rgba(51,51,51,0.8)] z-[99999]">
+
+    <div class="relative flex items-center justify-center">
+        <!-- Centro -->
+        <div class="w-6 h-6 bg-white rounded-full"></div>
+
+        <!-- Ondas -->
+        <div class="absolute w-6 h-6 border-4 border-white rounded-full animate-ping"></div>
+        <div class="absolute w-10 h-10 border-4 border-white rounded-full animate-ping delay-150"></div>
+        <div class="absolute w-14 h-14 border-4 border-white rounded-full animate-ping delay-300"></div>
+    </div>
+</div>
+
 
     <!-- Botón para abrir/cerrar sidebar en móviles -->
     <button data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar" aria-controls="default-sidebar" type="button" class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
@@ -21,8 +48,10 @@
     </button>
     <!-- Sidebar -->
     <aside id="default-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0" aria-label="Sidebar">
-        <div class="h-full px-2 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
-            <!-- Usuario arriba -->
+      <div id="sidebar-scroll"
+     class="h-full px-2 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
+
+       <!-- Usuario arriba -->
             <!-- Perfil usuario arriba del sidebar -->
             <div class="flex items-center  px-1 gap-1 p-3 border-b border-gray-200 dark:border-gray-700">
                 <div class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-300 dark:bg-gray-600 text-white">
@@ -133,7 +162,7 @@
                 </li>
                 @endrole
 
-                <!-- En tu navigation.blade.php -->
+                <!-- En tu navigation.blade -->
                 @role('administrador|contador|vendedor')
                 <li>
                     <a href="{{ route('invoices.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group sidebar-item {{ request()->routeIs('invoices.*') ? 'active-sidebar' : '' }}">
@@ -144,21 +173,122 @@
                     </a>
                 </li>
                 @endrole
-                @role('administrador|contador|vendedor')
-                <li>
-                    <a href="{{ route('credit.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group sidebar-item {{ request()->routeIs('credit.*') ? 'active-sidebar' : '' }}">
-                        <!-- Lucide -->
-                        <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                            <path fill-rule="evenodd" d="M9 7V2.221a2 2 0 0 0-.5.365L4.586 6.5a2 2 0 0 0-.365.5H9Zm2 0V2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Zm2-2a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2h-3Zm0 3a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2h-3Zm-6 4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-6Zm8 1v1h-2v-1h2Zm0 3h-2v1h2v-1Zm-4-3v1H9v-1h2Zm0 3H9v1h2v-1Z" clip-rule="evenodd" />
-                        </svg>
 
-                        <span class="ms-3">Cuentas por cobrar</span>
+                 @role('administrador|contador|vendedor')
+                <li>
+                    <a href="{{ route('cash-closures.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group sidebar-item {{ request()->routeIs('cash-closures.*') ? 'active-sidebar' : '' }}">
+                        <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 3v4a1 1 0 0 1-1 1H5m8-2h3m-3 3h3m-4 3v6m4-3H8M19 4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1ZM8 12v6h8v-6H8Z" />
+                        </svg>
+                        <span class="ms-3">Cierres de Caja</span>
                     </a>
                 </li>
                 @endrole
 
 
+
             </ul>
+            @php
+            $finanzasOpen = request()->routeIs(
+            'admin.income.*',
+            'admin.expenses.*',
+            'admin.movimientos.*',
+            'admin.cuentas.*',
+            'credit.*'
+            );
+            @endphp
+
+            <li class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
+                <button type="button"
+                    class="flex items-center w-full p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                    aria-controls="dropdown-finanzas"
+                    aria-expanded="{{ $finanzasOpen ? 'true' : 'false' }}"
+                    data-collapse-toggle="dropdown-finanzas">
+
+
+                    <!-- Icono -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 8a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-4.418 0-8 2.239-8 5v3h16v-3c0-2.761-3.582-5-8-5Z" />
+                    </svg>
+
+                    <span class="flex-1 ms-3 text-left whitespace-nowrap">Finanzas</span>
+
+                    <!-- Flecha -->
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 10 6">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1l4 4 4-4" />
+                    </svg>
+                </button>
+
+                <!-- Submenú -->
+                <ul id="dropdown-finanzas"
+                    class="py-2 space-y-2 {{ $finanzasOpen ? '' : 'hidden' }}">
+
+                    <li>
+                        <a href="#"
+                            class="flex items-center p-2 pl-11 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group sidebar-item {{ request()->routeIs('income.*') ? 'active-sidebar' : '' }}">
+
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white">
+                                <path fill-rule="evenodd" d="M2.25 2.25a.75.75 0 0 0 0 1.5H3v10.5a3 3 0 0 0 3 3h1.21l-1.172 3.513a.75.75 0 0 0 1.424.474l.329-.987h8.418l.33.987a.75.75 0 0 0 1.422-.474l-1.17-3.513H18a3 3 0 0 0 3-3V3.75h.75a.75.75 0 0 0 0-1.5H2.25Zm6.54 15h6.42l.5 1.5H8.29l.5-1.5Zm8.085-8.995a.75.75 0 1 0-.75-1.299 12.81 12.81 0 0 0-3.558 3.05L11.03 8.47a.75.75 0 0 0-1.06 0l-3 3a.75.75 0 1 0 1.06 1.06l2.47-2.47 1.617 1.618a.75.75 0 0 0 1.146-.102 11.312 11.312 0 0 1 3.612-3.321Z" clip-rule="evenodd" />
+                            </svg>
+
+
+                            <span class="flex-1 ms-3 whitespace-nowrap">Resumen</span>
+                        </a>
+                    </li>
+                    @role('administrador|contador|vendedor')
+                    <li>
+                        <a href="{{ route('credit.index') }}" class="flex items-center p-2 pl-11 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group sidebar-item {{ request()->routeIs('credit.*') ? 'active-sidebar' : '' }}">
+                            <!-- Lucide -->
+                            <svg class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                <path fill-rule="evenodd" d="M9 7V2.221a2 2 0 0 0-.5.365L4.586 6.5a2 2 0 0 0-.365.5H9Zm2 0V2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Zm2-2a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2h-3Zm0 3a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2h-3Zm-6 4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-6Zm8 1v1h-2v-1h2Zm0 3h-2v1h2v-1Zm-4-3v1H9v-1h2Zm0 3H9v1h2v-1Z" clip-rule="evenodd" />
+                            </svg>
+
+                            <span class="flex-1 ms-3 whitespace-nowrap">Cuentas por cobrar</span>
+                        </a>
+                    </li>
+                    @endrole
+                    <li>
+                        <a href="{{ route('admin.income.index') }}"
+                            class="flex items-center p-2 pl-11 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group sidebar-item {{ request()->routeIs('admin.income.*') ? 'active-sidebar' : '' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white">
+                                <path fill-rule="evenodd" d="M15.22 6.268a.75.75 0 0 1 .968-.431l5.942 2.28a.75.75 0 0 1 .431.97l-2.28 5.94a.75.75 0 1 1-1.4-.537l1.63-4.251-1.086.484a11.2 11.2 0 0 0-5.45 5.173.75.75 0 0 1-1.199.19L9 12.312l-6.22 6.22a.75.75 0 0 1-1.06-1.061l6.75-6.75a.75.75 0 0 1 1.06 0l3.606 3.606a12.695 12.695 0 0 1 5.68-4.974l1.086-.483-4.251-1.632a.75.75 0 0 1-.432-.97Z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="flex-1 ms-3 whitespace-nowrap">Ingresos</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('admin.expenses.index') }}" class="flex items-center p-2 pl-11 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group sidebar-item {{ request()->routeIs('admin.expenses.*') ? 'active-sidebar' : '' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white">
+                                <path fill-rule="evenodd" d="M1.72 5.47a.75.75 0 0 1 1.06 0L9 11.69l3.756-3.756a.75.75 0 0 1 .985-.066 12.698 12.698 0 0 1 4.575 6.832l.308 1.149 2.277-3.943a.75.75 0 1 1 1.299.75l-3.182 5.51a.75.75 0 0 1-1.025.275l-5.511-3.181a.75.75 0 0 1 .75-1.3l3.943 2.277-.308-1.149a11.194 11.194 0 0 0-3.528-5.617l-3.809 3.81a.75.75 0 0 1-1.06 0L1.72 6.53a.75.75 0 0 1 0-1.061Z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="flex-1 ms-3 whitespace-nowrap">Egresos</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('admin.movimientos.index') }}" class="flex items-center p-2 pl-11 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group sidebar-item {{ request()->routeIs('admin.movimientos.*') ? 'active-sidebar' : '' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white">
+                                <path d="M12 7.5a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5Z" />
+                                <path fill-rule="evenodd" d="M1.5 4.875C1.5 3.839 2.34 3 3.375 3h17.25c1.035 0 1.875.84 1.875 1.875v9.75c0 1.036-.84 1.875-1.875 1.875H3.375A1.875 1.875 0 0 1 1.5 14.625v-9.75ZM8.25 9.75a3.75 3.75 0 1 1 7.5 0 3.75 3.75> 0 0 1-7.5 0ZM3.375 18a1.875 1.875 0 0 0-1.875 1.875v1.125C1.5 22.161 2.34 23 3.375 23h17.25c1.035 0 1.875-.84 1.875-1.875v-1.125a1.875 1.875 0 0 0-1.875-1.875H3.375Z" clip-rule="evenodd" />
+
+                                <span class="flex-1 ms-3 whitespace-nowrap">Movimiento</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('admin.cuentas.index') }}" class="flex items-center p-2 pl-11 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group sidebar-item {{ request()->routeIs('admin.cuentas.*') ? 'active-sidebar' : '' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white">
+                                <path d="M11.584 2.376a.75.75 0 0 1 .832 0l9 6a.75.75 0 1 1-.832 1.248L12 3.901 3.416 9.624a.75.75 0 0 1-.832-1.248l9-6Z" />
+                                <path fill-rule="evenodd" d="M20.25 10.332v9.918H21a.75.75 0 0 1 0 1.5H3a.75.75 0 0 1 0-1.5h.75v-9.918a.75.75 0 0 1 .634-.74A49.109 49.109 0 0 1 12 9c2.59 0 5.134.202 7.616.592a.75.75 0 0 1 .634.74Zm-1.5 1.5a47.61 47.61 0 0 0-13.5 0v8.418h13.5v-8.418Z" clip-rule="evenodd" />
+
+                                <span class="flex-1 ms-3 whitespace-nowrap">Cuenta</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+
 
             <!-- Sección administrativa - SOLO para administradores -->
             @role('administrador|contador|vendedor|inventario')
@@ -231,5 +361,27 @@
         });
     });
 </script>
+<script>
+    (function () {
+        const sidebar = document.getElementById('sidebar-scroll');
+        if (!sidebar) return;
+
+        const key = 'sidebar-scroll-position';
+        const saved = localStorage.getItem(key);
+
+        if (saved !== null) {
+            sidebar.scrollTop = parseInt(saved, 10);
+        }
+
+        // Mostrar cuando ya está listo
+        sidebar.style.visibility = 'visible';
+
+        // Guardar posición
+        sidebar.addEventListener('scroll', () => {
+            localStorage.setItem(key, sidebar.scrollTop);
+        });
+    })();
+</script>
+
 
 </html>

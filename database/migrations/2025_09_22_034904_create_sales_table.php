@@ -21,6 +21,8 @@ return new class extends Migration
             $table->enum('payment_type', ['cash', 'card', 'transfer', 'credit'])->default('cash');
             $table->enum('status', ['pending', 'completed', 'cancelled'])->default('completed');
             $table->text('comments')->nullable();
+            $table->decimal('amount_paid', 12, 2)->nullable()->comment('Monto recibido');
+            $table->decimal('change', 12, 2)->default(0)->comment('Cambio entregado');
             $table->foreignId('customer_id')->nullable()->constrained('customers')->nullOnDelete();
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();

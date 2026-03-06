@@ -155,27 +155,26 @@
 </head>
 
 <body>
-    @php
-    $totalPaid = $totalPaid ?? ($sale->payments->sum('amount') ?? 0);
-    $remaining = $remaining ?? (($sale->total ?? $sale->subtotal ?? 0) - $totalPaid);
-    @endphp
+@if($empresa && $empresa->logo)
+    <div style="text-align:center; margin-bottom:5px;">
+        
+            <img src="{{ public_path('storage/' . $empresa->logo) }}"
 
-    <div class="ticket">
-        <div class="header">
-      
-            @if($empresa && $empresa->logo)
-            <div style="width:120px; height:220px; 
-                display:flex; align-items:center; justify-content:center; margin:0 auto;">
-                <img src="{{ public_path('storage/' . $empresa->logo) }}"
-                    alt="Logo"
-                    style="width:225px; object-fit:contain; border-radius:50%;">
-            </div>
-            @endif
+            width="150"
+            style="display:block; margin:0 auto;"
+        >
+    </div>
+@endif
 
+
+
+    
             <div class="divider"></div>
             <div class="text-left">Dirección: {{ $empresa->matriz ?? 'Dirección no especificada' }}</div>
             <div class="text-left">RUC: {{ $empresa->ruc ?? '0000000000001' }}</div>
             <div class="text-left">Telf: {{ $empresa->telefono ?? 'N/A' }}</div>
+            
+        
             <div class="divider"></div>
 
             <!-- Información de la venta -->
@@ -252,7 +251,7 @@
     <!-- AVISO DE INTERÉS POR MORA -->
     @if($remaining > 0)
         <div class="text-center bold">
-            *Este crédito genera intereses por mora si no se paga dentro de la fecha acordada.*
+            Este crédito genera intereses por mora si no se paga dentro de la fecha acordada.
     </div>
     @endif
 
@@ -288,7 +287,7 @@
 
         <!-- Pie -->
         <div class="footer">
-            <div>**Gracias por su compra**</div>
+            <div>*Gracias por su compra*</div>
            
             <!-- Código de barras con número de venta -->
             <img src="https://barcodeapi.org/api/code128/{{ $sale->sale_number }}"

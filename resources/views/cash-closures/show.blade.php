@@ -1,4 +1,9 @@
 
+@if(session('error'))
+    <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded mb-4">
+        {{ session('error') }}
+    </div>
+@endif
 
 <div class="p-4 bg-white rounded-lg shadow space-y-4">
     <h1 class="text-2xl font-bold text-gray-800 mb-6">
@@ -64,7 +69,7 @@
 
         <div class="mt-4 p-3 bg-white border border-gray-200 rounded-lg">
             <div class="flex justify-between items-center">
-                <span class="font-semibold text-gray-700">Total General de Ventas:</span>
+                <span class="font-semibold text-gray-700">Total de Ventas:</span>
                 <span class="text-xl font-bold text-blue-700">${{ number_format($totals['total'], 2) }}</span>
             </div>
             <div class="text-sm text-gray-600 mt-1">{{ $sales->count() }} ventas registradas</div>
@@ -86,7 +91,7 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-600">+ Ventas en Efectivo:</span>
-                        <span class="font-semibold">${{ number_format($totals['cash'], 2) }}</span>
+                        <span class="font-semibold">${{ number_format($cashClosure->cash_sales, 2) }}</span>
                     </div>
                     <div class="flex justify-between border-t pt-2">
                         <span class="text-green-700 font-semibold">= Efectivo Esperado:</span>
@@ -210,4 +215,6 @@
             📋 Ver todos los cierres
         </a>
     </div>
+
+ <x-toast />
 </div>

@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Sale;
 use App\Models\Empresa;
 use App\Models\sale_items;
-use App\Models\Customer;  // ← Cambiado de 'customer' a 'Customer'
+use App\Models\Customer;  
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;  // ← Cambiado de 'barryvdh' a 'Barryvdh'
+use Barryvdh\DomPDF\Facade\Pdf;  
 use Illuminate\Support\Facades\Storage;
 class InvoiceController extends Controller
 {
@@ -93,20 +93,6 @@ class InvoiceController extends Controller
         //
     }
 
-    /**
-     * Generate PDF invoice
-     */
-    public function generatePDF($id)
-    {
-        $sales = Sale::with(['customer', 'items.product', 'createdBy'])
-                    ->findOrFail($id);
-
-        $empresa = Empresa::first(); // ← Cambiado de 'empresas' a 'empresa'
-
-        $pdf = Pdf::loadView('invoices.pdf', compact('sales', 'empresa')); // ← Y aquí también
-
-        return $pdf->download("factura-{$sales->sale_number}.pdf");
-    }
 
     /**
      * Print invoice view
@@ -155,6 +141,23 @@ class InvoiceController extends Controller
 
     // Redirigir a WhatsApp Web/App
     return redirect("https://wa.me/{$sale->customer->phone}?text={$message}");
+}
+public function pdf(Sale $invoice)
+{
+    $invoice->load([
+        'customer',
+        'items.product',
+        'createdBy'
+    ]);
+
+    $empresa = Empresa::first();
+
+    $pdf = Pdf::loadView('invoices.pdf', [
+        'sales' => $invoice,
+        'empresa' => $empresa
+    ])->setPaper('A4', 'portrait');
+
+    return $pdf->download('Factura_'.$invoice->sale_number.'.pdf');
 }
 
 }

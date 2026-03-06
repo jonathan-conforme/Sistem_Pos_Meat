@@ -96,10 +96,18 @@
                                     @endif
                             </td>
                             <td class="px-4 py-3 text-center">
-                                <button data-sale-id="{{ $sale->id }}"
-                                    class="openCreditModal inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow transition-all">
-                                    <i class="fas fa-credit-card"></i>Pagar
-                                </button>
+                              @if($sale->remaining <= 0)
+    <button disabled
+        class="inline-flex items-center gap-2 bg-gray-400 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-not-allowed">
+        <i class="fas fa-check-circle"></i> Pagado
+    </button>
+@else
+    <button data-sale-id="{{ $sale->id }}"
+        class="openCreditModal inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow transition-all">
+        <i class="fas fa-credit-card"></i> Pagar
+    </button>
+@endif
+
                             </td>
                         </tr>
                         @endforeach

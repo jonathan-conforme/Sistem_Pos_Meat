@@ -257,20 +257,6 @@
                     </div>
                 </div>
 
-                <!-- Métodos de Pago -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Métodos de Pago</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        @foreach($paymentMethods as $method)
-                        <div class="text-center p-4 bg-gray-50 rounded-lg">
-                            <p class="text-sm font-medium text-gray-600 capitalize">{{ $method->payment_type }}</p>
-                            <p class="text-xl font-bold text-gray-900">{{ $method->count }}</p>
-                            <p class="text-xs text-gray-500">${{ number_format($method->amount, 2) }}</p>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
 
             <!-- ==================== ESTADÍSTICAS GENERALES ==================== -->
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Estadísticas Generales</h2>

@@ -524,10 +524,10 @@
 
  <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('✅ Script cargado correctamente');
+    console.log(' Script cargado correctamente');
 
     /* --------------------------------------------------------------------------
-     * 🔧 ELEMENTOS PRINCIPALES Y MODAL
+     *  ELEMENTOS PRINCIPALES Y MODAL
      * -------------------------------------------------------------------------- */
     const modalEl = document.getElementById('form-modal');
     const formModal = new Modal(modalEl);
@@ -536,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     /* --------------------------------------------------------------------------
-     * ➕ ABRIR MODAL EN MODO CREAR
+     *  ABRIR MODAL EN MODO CREAR
      * -------------------------------------------------------------------------- */
     window.openCreate = function() {
         setModalMode("create");
@@ -560,7 +560,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     /* --------------------------------------------------------------------------
-     * 🔠 GENERAR SKU AUTOMÁTICAMENTE SEGÚN EL NOMBRE
+     *  GENERAR SKU AUTOMÁTICAMENTE SEGÚN EL NOMBRE
      * -------------------------------------------------------------------------- */
     document.getElementById('name').addEventListener('input', async function() {
         const name = this.value.trim();
@@ -580,14 +580,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             skuInput.value = data.nextSku || `${prefix}-001`;
         } catch (err) {
-            console.error('❌ Error al generar SKU:', err);
+            console.error(' Error al generar SKU:', err);
             skuInput.value = `${prefix}-001`;
         }
     });
 
 
     /* --------------------------------------------------------------------------
-     * 💾 GUARDAR PRODUCTO (CREATE / UPDATE)
+     *  GUARDAR PRODUCTO (CREATE / UPDATE)
      * -------------------------------------------------------------------------- */
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -596,7 +596,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     async function saveProduct(productId = null) {
-        console.log('💾 Iniciando guardado...');
+        console.log(' Iniciando guardado...');
 
         const url = productId ?
             `/admin/products/${productId}` :
@@ -643,7 +643,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) throw new Error(data.message || `Error ${response.status}`);
 
             if (data.success) {
-                console.log('✅ Producto guardado exitosamente');
+                console.log(' Producto guardado exitosamente');
                 formModal.hide();
                 form.reset();
                 document.getElementById('sku').value = '';
@@ -664,7 +664,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
         } catch (error) {
-            console.error('❌ Error al guardar producto:', error);
+            console.error(' Error al guardar producto:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -678,7 +678,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     /* --------------------------------------------------------------------------
-     * 🔁 CONFIGURAR MODO DEL MODAL
+     *  CONFIGURAR MODO DEL MODAL
      * -------------------------------------------------------------------------- */
     function setModalMode(mode = "create") {
         const title = document.getElementById("modal-title");
@@ -699,14 +699,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     /* --------------------------------------------------------------------------
-     * ✏️ EDITAR PRODUCTO — 100% FUNCIONAL
+     *  EDITAR PRODUCTO — 100% FUNCIONAL
      * -------------------------------------------------------------------------- */
     window.editProduct = async function(productId) {
-        console.log("✏️ Editar producto:", productId);
+        console.log(" Editar producto:", productId);
 
         setModalMode("edit");
-        form.onsubmit = null; // Limpia comportamiento anterior
-        form.dataset.productId = productId; // Asegura modo editar
+        form.onsubmit = null; 
+        form.dataset.productId = productId; 
 
         try {
             const response = await fetch(`/admin/products/${productId}/edit`, {
@@ -749,7 +749,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     /* --------------------------------------------------------------------------
-     * 📊 STATS Y TOGGLES (SIN CAMBIOS)
+     *  STATS Y TOGGLES (SIN CAMBIOS)
      * -------------------------------------------------------------------------- */
     function updateStats(stats) {
         const ids = {
@@ -765,7 +765,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 /* -------------------------------------------------------------------------- */
-/* 🟢🔴 ACTIVAR / DESACTIVAR PRODUCTO (Toggle Simple)                         */
+/* ACTIVAR / DESACTIVAR PRODUCTO (Toggle Simple)                         */
 /* -------------------------------------------------------------------------- */
 
 window.toggleProductStatus = async function(id) {
@@ -800,7 +800,7 @@ window.toggleProductStatus = async function(id) {
         if (data.stats) updateStats(data.stats);
 
     } catch (error) {
-        console.error("❌ Error en toggle:", error);
+        console.error(" Error en toggle:", error);
 
         // Revertir si hay error de red
         updateProductUI(id, isCurrentlyActive);
@@ -840,7 +840,7 @@ window.toggleProductStatus = async function(id) {
 
 
     /* --------------------------------------------------------------------------
-     * 📈 CÁLCULO DEL MARGEN
+     *  CÁLCULO DEL MARGEN
      * -------------------------------------------------------------------------- */
     function updateProfitMargin() {
         const cost = parseFloat(document.getElementById('default_cost').value) || 0;

@@ -1,6 +1,11 @@
 <x-app-layout>
     <div class="max-w-4xl mx-auto bg-white rounded-xl shadow p-6 mt-6">
         <h1 class="text-2xl font-bold text-gray-800 mb-4">Cierre de Caja del Día</h1>
+@if(session('error'))
+    <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded mb-4">
+        {{ session('error') }}
+    </div>
+@endif
 
         {{-- Resumen de ventas --}}
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -32,7 +37,7 @@
         <form action="{{ route('cash-closures.store') }}" method="POST" class="space-y-6">
             @csrf
 
-            <!-- En cash-closures/create.blade.php -->
+            <!-- efectivo contado -->
             <div>
                 <label for="physical_cash" class="block text-sm font-medium text-gray-700 mb-1">
                     Efectivo físico contado
@@ -69,4 +74,5 @@
             </div>
         </form>
     </div>
+    <x-toast />
 </x-app-layout>

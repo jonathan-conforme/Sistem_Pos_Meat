@@ -10,7 +10,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Suppliers;
 use App\Models\User;
-use App\Models\CashClosure; // 👈 Asegúrate de importar este modelo
+use App\Models\CashClosure;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Carbon\Carbon;
@@ -94,7 +94,7 @@ class DashboardController extends Controller
         $myTodayClosure = CashClosure::today()->user($userId)->first();
 
         $todayClosures = CashClosure::today()->with('user')->get();
-        $activeUsers = User::count(); // contamos todos los usuarios
+        $activeUsers = User::count(); // Contador de usuarios
 
 
         $totalSalesToday = Sale::whereDate('created_at', today())
@@ -115,11 +115,13 @@ class DashboardController extends Controller
             'my_cash_sales' => $myTodaySales->where('payment_type', 'cash')->sum('total'),
             'my_card_sales' => $myTodaySales->where('payment_type', 'card')->sum('total'),
             'my_transfer_sales' => $myTodaySales->where('payment_type', 'transfer')->sum('total'),
-            'my_credit_sales' => $myTodaySales->where('payment_type', 'credit')->sum('total'),
-            'my_total_sales' => $myTodaySales->sum('total'),
+           'my_credit_sales' => Sale::whereDate('created_at', today())
+            ->where('created_by', $userId)
+            ->where('payment_type', 'credit')
+            ->sum('subtotal'),
+            'my_total_sales' => $myTodaySales->sum('subtotal'),
             'my_profit' => $myTodayProfit,
             'my_sales_count' => $myTodaySales->count(),
-
             'today_closures_count' => $todayClosures->count(),
             'active_users_count' => $activeUsers,
             'total_sales_today' => $totalSalesToday,
@@ -149,11 +151,11 @@ class DashboardController extends Controller
             'totalSuppliers',
             'totalUsers',
             'recentSales',
-            'cashClosureStats' // 👈 agregado sin romper el resto
+            'cashClosureStats' 
         ));
     }
 
-    // Métodos AJAX (sin cambios)
+    // Métodos AJAX 
     public function getStats(): \Illuminate\Http\JsonResponse
     { /* ... */
     }

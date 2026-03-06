@@ -11,32 +11,6 @@
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            <!-- Mensajes de estado -->
-            @if ($errors->any())
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow" role="alert">
-                <p class="font-bold mb-2">Por favor corrige los siguientes errores:</p>
-                <ul class="list-disc list-inside">
-                    @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-
-            @if(session('error'))
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow" role="alert">
-                <p class="font-bold">Error</p>
-                <p>{{ session('error') }}</p>
-            </div>
-            @endif
-
-            @if(session('success'))
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded shadow" role="alert">
-                <p class="font-bold">Éxito</p>
-                <p>{{ session('success') }}</p>
-            </div>
-            @endif
-
             <!-- Botón para abrir modal -->
             <div class="mb-6 flex justify-end">
                 <button type="button" data-modal-target="empresaModal"
@@ -227,7 +201,11 @@
                 @forelse ($empresas as $empresa)
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300">
                     <div class="p-6">
-
+ @if($empresa && $empresa->logo)
+    <img src="{{ asset('storage/' . $empresa->logo) }}" 
+         alt="Logo Empresa"
+         class="w-32 h-auto mb-4">
+         @endif
                         <!-- Header de la tarjeta -->
                         <div class="flex justify-between items-start mb-4">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-white truncate">{{ $empresa->nombre }}</h3>
@@ -272,6 +250,16 @@
                                 </svg>
                                 <span>Contribuyente: {{ $empresa->contribuyente_especial }}</span>
                             </div>
+                            <form id="delete-form-{{ $empresa->id }}" action="{{ route('admin.empresa.destroy', $empresa) }}" method="POST" class="mt-2">
+                            @csrf
+                            @method('DELETE')
+    
+                            <button type="button" 
+                                onclick="confirmDelete('delete-form-{{ $empresa->id }}')"
+                                class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                                Eliminar
+                            </button>
+                        </form>
                         </div>
 
                     </div>
@@ -353,5 +341,5 @@
             });
         });
     </script>
-
+<x-toast />
 </x-app-layout>

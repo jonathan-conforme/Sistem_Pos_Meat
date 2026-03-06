@@ -99,4 +99,5 @@ class PdfController extends Controller
     return $pdf->stream("credito-{$sale->sale_number}.pdf");
 }
 
+
 }
