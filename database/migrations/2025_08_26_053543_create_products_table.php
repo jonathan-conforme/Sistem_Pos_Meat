@@ -20,21 +20,16 @@ return new class extends Migration
             $table->string('code')->unique()->nullable()->comment('Código interno del producto');
             
             // Configuración de unidades y precios
-            $table->enum('unit_type', ['lb', 'unit', 'package']);
-            $table->decimal('default_cost', 10, 2)->nullable()->comment('Costo de referencia');
+             $table->decimal('default_cost', 10, 2)->nullable()->comment('Costo de referencia');
             $table->decimal('default_price', 10, 2)->nullable()->comment('Precio sugerido');
 
             // Gestión de inventario
-            $table->float('quantity', 10, 2)->default(0)->comment('Cantidad actual en stock');
-            $table->float('min_stock', 10, 2)->default(0)->comment('Stock mínimo alerta');
-            $table->float('max_stock', 10, 2)->nullable()->comment('Stock máximo recomendado');
+             $table->decimal('min_stock', 10, 2)->default(0)->comment('Stock mínimo alerta');
+            $table->decimal('max_stock', 10, 2)->nullable()->comment('Stock máximo recomendado');
 
             // Fechas críticas
             $table->date('creation_date')->nullable()->comment('Fecha de creación del producto');
-            $table->date('entry_date')->nullable()->comment('Fecha de ingreso al inventario');
-            $table->date('expiration_date')->nullable()->comment('Fecha de expiración del producto');
-            $table->date('manufacture_date')->nullable()->comment('Fecha de fabricación');
-
+            
             // Estado y control
             $table->boolean('active')->default(true);
             $table->boolean('track_expiration')->default(false)->comment('¿Requiere seguimiento de caducidad?');
@@ -45,7 +40,7 @@ return new class extends Migration
                 ->constrained('categories')
                 ->nullOnDelete()
                 ->comment('Categoría del producto');
-                
+            $table->foreignId('unit_id')->constrained('units');    
 
             // Auditoría
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
@@ -56,10 +51,8 @@ return new class extends Migration
             // Índices compuestos para mejor performance
             $table->index(['sku', 'active']);
             $table->index(['active', 'deleted_at']);
-            $table->index(['unit_type', 'active']);
-            $table->index(['expiration_date', 'active'])->where('track_expiration', true);
-            $table->index(['quantity', 'min_stock'])->where('track_quantity', true);
-            $table->index(['entry_date', 'active']);
+            
+           
         });
     }
     /**

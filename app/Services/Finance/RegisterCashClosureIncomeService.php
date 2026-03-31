@@ -5,6 +5,7 @@ namespace App\Services\Finance;
 use App\Models\CashClosure;
 use App\Models\Finance\Movimiento;
 use App\Models\Finance\Cuenta;
+use Illuminate\Support\Facades\DB;
 use Exception;
 
 class RegisterCashClosureIncomeService
@@ -16,7 +17,7 @@ class RegisterCashClosureIncomeService
     if (Movimiento::where('referencia', $reference)->exists()) {
         return;
         }
-
+        DB::transaction(function () use ($cashClosure, $reference) {
         $this->registerIncome(
             config('finance.accounts.cash'),
             $cashClosure->cash_sales,
@@ -44,7 +45,7 @@ class RegisterCashClosureIncomeService
             $reference
         );
 
-      
+      });
     }
 
    private function registerIncome($accountId, $amount, $label, $metodoPago,  CashClosure $cashClosure, $reference): void
@@ -70,7 +71,7 @@ class RegisterCashClosureIncomeService
         'created_by' => $cashClosure->user_id,
     ]);
 
-    $cuenta->increment('saldo_actual', $amount);
+    //$cuenta->increment('saldo_actual', $amount);
 }
 
 }

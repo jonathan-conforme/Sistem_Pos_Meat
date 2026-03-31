@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Finanzas;
 
 use App\Http\Controllers\Controller;
 use App\Models\Finance\Movimiento;
+use App\Models\Finance\Cuenta;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class IngresoController extends Controller
 {
@@ -45,8 +47,32 @@ class IngresoController extends Controller
     ->groupBy(function ($mov) {
         return Carbon::parse($mov->fecha)->format('Y-m-d');
     });
+       $cuentas = Cuenta::where('activa', true)->get(); 
 
+        return view('finance.income.index', compact('movimientos', 'cuentas'));
+    }
 
-        return view('finance.income.index', compact('movimientos'));
+public function store(Request $request)
+    {
+        $request->validate([
+            'cuenta_id' => 'required|exists:cuentas,id',
+            'monto' => 'required|numeric|min:0.01',
+            'metodo_pago' => 'required|in:cash,transfer,card',
+            'descripcion' => 'required|string|max:255',
+        ]);
+
+        // SOLO creamos el movimiento. Tu sistema (Observer/Trigger) 
+        // se encargará de hacer la suma a la cuenta automáticamente.
+        Movimiento::create([
+            'cuenta_id' => $request->cuenta_id,
+            'tipo' => 'ingreso',
+            'monto' => $request->monto,
+            'metodo_pago' => $request->metodo_pago,
+            'descripcion' => $request->descripcion,
+            'fecha' => now()->toDateString(), 
+            'created_by' => auth()->id(),
+        ]);
+
+        return redirect()->back()->with('success', 'Ingreso registrado correctamente.');
     }
 }

@@ -6,7 +6,8 @@ use App\Models\Product;
 use App\Models\Sale;
 use App\Models\sale_items;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\Inventory;
+use App\Models\InventoryMovement;
 class SalesService
 {
     public function createSale(array $data, int $userId): Sale
@@ -45,7 +46,38 @@ class SalesService
 
             foreach ($data['items'] as $item) {
                 $product = Product::findOrFail($item['id']);
+// 2. Obtener o crear el registro de inventario para este producto
+                $inventory = Inventory::firstOrCreate(
+                    ['product_id' => $product->id],
+                    ['available_quantity' => 0, 'created_by' => $userId]
+                );
 
+                // 3. Validar Stock
+                if ($inventory->available_quantity < $item['qty']) {
+                    throw new \Exception("Stock insuficiente para {$product->name}. Disponible: {$inventory->available_quantity}");
+                }
+
+                $stockBefore = $inventory->available_quantity;
+                $stockAfter = $stockBefore - $item['qty'];
+
+                // 4. Actualizar la tabla 'inventories'
+                $inventory->update([
+                    'available_quantity' => $stockAfter,
+                    'updated_by' => $userId
+                ]);
+
+                // 5. Registrar el movimiento en 'inventory_movements'
+                InventoryMovement::create([
+                    'product_id' => $product->id,
+                    'type' => 'sale',
+                    'quantity' => $item['qty'],
+                    'stock_before' => $stockBefore,
+                    'stock_after' => $stockAfter,
+                    'reference_id' => $sale->id,
+                    'reference_type' => Sale::class,
+                    'created_by' => $userId,
+                    'notes' => "Venta POS #{$sale->sale_number}"
+                ]);
                 sale_items::create([
                     'sale_mode' => 'unit',
                     'quantity' => $item['qty'],

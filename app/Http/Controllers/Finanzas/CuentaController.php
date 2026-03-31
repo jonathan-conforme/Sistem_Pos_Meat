@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Finanzas;
 
 use App\Http\Controllers\Controller;
-use App\Models\Finance\cuenta;
+use App\Models\Finance\Cuenta;
 use Illuminate\Http\Request;
 
 class CuentaController extends Controller

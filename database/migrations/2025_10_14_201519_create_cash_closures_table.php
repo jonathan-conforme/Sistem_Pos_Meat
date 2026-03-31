@@ -30,6 +30,8 @@ return new class extends Migration
             $table->decimal('average_ticket', 10, 2)->default(0);
             $table->enum('status', ['pending', 'completed', 'verified'])->default('completed');
             $table->text('observations')->nullable();
+            // relaciones
+            $table->boolean('financial_registered')->default(false);
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('verified_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('verified_at')->nullable();

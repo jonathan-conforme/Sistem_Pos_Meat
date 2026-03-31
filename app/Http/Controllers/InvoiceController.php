@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Sale;
 use App\Models\Empresa;
-use App\Models\sale_items;
+use App\Models\Sale_items;
 use App\Models\Customer;  
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;  

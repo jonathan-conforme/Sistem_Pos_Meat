@@ -10,7 +10,7 @@ export default {
         "./resources/views/**/*.blade.php",
         "./resources/**/*.js",
         "./resources/**/*.vue",
-        "./node_modules/flowbite/**/*.js"
+        "./node_modules/flowbite/**/*.js",
     ],
 
     // BUENA PRÁCTICA: Safelist para clases dinámicas de JavaScript

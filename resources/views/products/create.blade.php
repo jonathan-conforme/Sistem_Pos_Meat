@@ -70,7 +70,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Stock Bajo</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ $stats['lowStockProducts'] }}</p>
+                        <p class="text-2xl font-bold text-gray-900"></p>
                     </div>
                 </div>
             </div>
@@ -116,6 +116,37 @@
                             @enderror
                         </div>
 
+                        
+                            <select id="unit_id" name="unit_id" class="form-control w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
+
+                            <option value="">Seleccione unidad</option>
+
+                           @forelse($units as $unit)
+    <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+@empty
+    <option disabled>No hay unidades registradas</option>
+@endforelse
+
+                            </select>
+                            <!-- Categoría -->
+<div class="mb-4">
+    <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">
+        Categoría
+    </label>
+    <select name="category_id" id="category_id"
+        class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+        <option value="">Sin categoría</option>
+        @foreach($categories as $category)
+            <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                {{ $category->name }}
+            </option>
+        @endforeach
+    </select>
+    @error('category_id')
+        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+    @enderror
+</div>
+                        
                         <div>
                             <label for="sku" class="block text-sm font-medium text-gray-700 mb-2">
                                 SKU (Código automático)
@@ -146,30 +177,29 @@
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
                                 placeholder="Código opcional">
                         </div>
-                        <!-- NUEVO CAMPO: CATEGORÍA -->
-                        <div>
-                            <label for="unit_type" class="block text-sm font-medium text-gray-700 mb-2">
-                                Tipo de unidad *
-                            </label>
-                            <select
-                                id="unit_type"
-                                name="unit_type"
-                                required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200">
-                                <option value="">Seleccione...</option>
-                                <option value="lb" {{ old('unit_type') == 'lb' ? 'selected' : '' }}>Libra (lb)</option>
-                                <option value="unit" {{ old('unit_type') == 'unit' ? 'selected' : '' }}>Unidad</option>
-                                <option value="package" {{ old('unit_type') == 'package' ? 'selected' : '' }}>Paquete</option>
-                            </select>
-                            @error('unit_type')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-
-
+                       
                     </div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 border-t pt-4">
+    <div>
+        <label for="min_stock" class="block text-sm font-medium text-gray-700">Stock Mínimo (Alerta)</label>
+        <input type="number" 
+               id="min_stock" 
+               name="min_stock" 
+               value="{{ old('min_stock', $product->inventory->min_stock ?? 0) }}" 
+               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+               required>
+    </div>
 
+    <div>
+        <label for="max_stock" class="block text-sm font-medium text-gray-700">Stock Máximo (Capacidad)</label>
+        <input type="number" 
+               id="max_stock" 
+               name="max_stock" 
+               value="{{ old('max_stock', $product->inventory->max_stock ?? 0) }}" 
+               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+               required>
+    </div>
+</div>
                     <!-- Sección: Precios y Costos -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 bg-green-50 rounded-lg">
                         <h4 class="md:col-span-3 text-lg font-semibold text-green-800 mb-2">Precios y Costos</h4>
@@ -223,86 +253,6 @@
                                 <span class="block text-xs text-gray-500">Margen</span>
                                 <span class="block text-lg font-semibold text-green-600">0%</span>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Sección: Gestión de Inventario -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 bg-yellow-50 rounded-lg">
-                        <h4 class="md:col-span-3 text-lg font-semibold text-yellow-800 mb-2">Gestión de Inventario</h4>
-
-                        <div>
-                            <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">
-                                Cantidad Inicial
-                            </label>
-                            <input
-                                type="number"
-                                id="quantity"
-                                name="quantity"
-                                step="0.001"
-                                min="0"
-                                value="{{ old('quantity', 0) }}"
-                                required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200">
-                            @error('quantity')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="min_stock" class="block text-sm font-medium text-gray-700 mb-2">
-                                Stock Mínimo
-                            </label>
-                            <input
-                                type="number"
-                                id="min_stock"
-                                name="min_stock"
-                                step="0.001"
-                                min="0"
-                                value="{{ old('min_stock', 0) }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200">
-                        </div>
-
-                        <div>
-                            <label for="max_stock" class="block text-sm font-medium text-gray-700 mb-2">
-                                Stock Máximo
-                            </label>
-                            <input
-                                type="number"
-                                id="max_stock"
-                                name="max_stock"
-                                step="0.001"
-                                min="0"
-                                value="{{ old('max_stock') }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition duration-200">
-                        </div>
-                    </div>
-
-                    <!-- Sección: Fechas Importantes -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-purple-50 rounded-lg">
-                        <h4 class="md:col-span-2 text-lg font-semibold text-purple-800 mb-2">Fechas Importantes</h4>
-
-                        <div>
-                            <label for="entry_date" class="block text-sm font-medium text-gray-700 mb-2">
-                                Fecha de Ingreso
-                            </label>
-                            <input
-                                type="date"
-                                id="entry_date"
-                                name="entry_date"
-                                value="{{ old('entry_date', now()->format('Y-m-d')) }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200">
-                        </div>
-
-                        <div>
-                            <label for="expiration_date" class="block text-sm font-medium text-gray-700 mb-2">
-                                Fecha de Expiración
-                            </label>
-                            <input
-                                type="date"
-                                id="expiration_date"
-                                name="expiration_date"
-                                value="{{ old('expiration_date') }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200">
                         </div>
                     </div>
 
@@ -375,43 +325,75 @@
 
 
         <!-- Barra de búsqueda -->
-        <div class="bg-white rounded-lg shadow p-4 mb-6">
-            <form method="GET" action="{{ route('admin.products.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="relative">
-                    <input
-                        type="text"
-                        name="search"
-                        placeholder="Buscar producto..."
-                        value="{{ request('search') }}"
-                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
-                        <i class="fas fa-search text-gray-400"></i>
-                    </div>
-                </div>
-
-                <select name="unit_type" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500">
-                    <option value="">Tipo de unidad</option>
-                    <option value="lb" {{ request('unit_type') == 'lb' ? 'selected' : '' }}>Libra (lb)</option>
-                    <option value="unit" {{ request('unit_type') == 'unit' ? 'selected' : '' }}>Unidad</option>
-                    <option value="package" {{ request('unit_type') == 'package' ? 'selected' : '' }}>Paquete</option>
-                </select>
-
-                <select name="active" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500">
-                    <option value="">Estado</option>
-                    <option value="1" {{ request('active') == '1' ? 'selected' : '' }}>Activo</option>
-                    <option value="0" {{ request('active') == '0' ? 'selected' : '' }}>Inactivo</option>
-                </select>
-
-                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-                    Filtrar
-                </button>
-                <a href="{{ route('admin.products.index') }}"
-   class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center justify-center">
-    Limpiar
-</a>
-
-            </form>
+      <!-- Barra de búsqueda y filtros -->
+<div class="bg-white rounded-lg shadow p-4 mb-6">
+    <form method="GET" action="{{ route('admin.products.index') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <!-- Búsqueda por texto -->
+        <div class="relative md:col-span-2">
+            <input
+                type="text"
+                name="search"
+                placeholder="Buscar por nombre, SKU o código..."
+                value="{{ request('search') }}"
+                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
         </div>
+
+        <!-- Filtro por categoría -->
+        <div>
+            <select name="category_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                <option value="">Todas las categorías</option>
+                @foreach($categories as $category)
+                    <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                        {{ $category->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Filtro por unidad -->
+        <div>
+            <select name="unit_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                <option value="">Todas las unidades</option>
+                @foreach($units as $unit)
+                    <option value="{{ $unit->id }}" {{ request('unit_id') == $unit->id ? 'selected' : '' }}>
+                        {{ $unit->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Filtro por estado -->
+        <div>
+            <select name="active" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                <option value="">Todos los estados</option>
+                <option value="1" {{ request('active') == '1' ? 'selected' : '' }}>Activos</option>
+                <option value="0" {{ request('active') == '0' ? 'selected' : '' }}>Inactivos</option>
+            </select>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="flex gap-2">
+            <button type="submit" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200 flex items-center justify-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Filtrar
+            </button>
+            
+            <a href="{{ route('admin.products.index') }}" class="flex-1 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-200 flex items-center justify-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Limpiar
+            </a>
+        </div>
+    </form>
+</div>
 
         <div class="bg-white shadow rounded-lg overflow-hidden">
             <div class="px-6 py-4 border-b">
@@ -428,7 +410,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>   
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">P.Costo</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">P.Venta</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
@@ -443,14 +425,25 @@
                             <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-900">{{ $product->name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-500">{{ $product->sku ?? 'N/A' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-500">{{ $product->code ?? 'N/A' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    {{ $product->unit_type }}
-                                </span>
-                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">
-                                {{ $product->quantity }}
+                                {{ $product->unit ? $product->unit->name : 'N/A' }} 
                             </td>
+                            <!-- Categoría (CORREGIDA) -->
+                        
+                           <td class="px-6 py-4 whitespace-nowrap">
+            @if($product->category)
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                      style="background-color: {{ $product->category->color }}20; color: {{ $product->category->color }}">
+                    <span class="w-2 h-2 rounded-full mr-1" style="background-color: {{ $product->category->color }}"></span>
+                    {{ $product->category->name }}
+                </span>
+            @else
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                    <span class="w-2 h-2 rounded-full bg-gray-400 mr-1"></span>
+                    Sin categoría
+                </span>
+            @endif
+        </td>               
                             <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">
                                 ${{ number_format($product->default_cost, 2) }}
                             </td>
@@ -522,7 +515,7 @@
         @endif
     </div>
 
- <script>
+<script>
 document.addEventListener('DOMContentLoaded', function() {
     console.log(' Script cargado correctamente');
 
@@ -545,15 +538,17 @@ document.addEventListener('DOMContentLoaded', function() {
         form.dataset.productId = "";
         document.getElementById("sku").value = "";
 
-        // Resetear checkboxes
+        // Resetear checkboxes a valores por defecto
         document.getElementById("active").checked = true;
-        document.getElementById("track_quantity").checked = false;
+        document.getElementById("track_quantity").checked = true;
         document.getElementById("track_expiration").checked = false;
+        
+        // Resetear selects
+        document.getElementById("unit_id").value = "";
+        document.getElementById("category_id").value = "";
 
         document.getElementById("modal-title").textContent = "Registrar Producto";
         saveBtn.textContent = "Guardar Producto";
-
-        form.onsubmit = null; // Limpia cualquier editor previo
 
         formModal.show();
     };
@@ -604,7 +599,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const formData = new FormData(form);
         if (productId) formData.append('_method', 'PUT');
-        formData.append('active', form.querySelector('#active').checked ? 1 : 0);
+        
+        // Asegurar que los checkboxes se envíen correctamente
+        formData.set('active', form.querySelector('#active').checked ? '1' : '0');
+        formData.set('track_quantity', form.querySelector('#track_quantity').checked ? '1' : '0');
+        formData.set('track_expiration', form.querySelector('#track_expiration').checked ? '1' : '0');
 
         const originalBtnContent = saveBtn.innerHTML;
         saveBtn.disabled = true;
@@ -630,7 +629,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (response.status === 422) {
                 const messages = Object.values(data.errors || {}).flat().join('\n');
-
                 Swal.fire({
                     icon: 'warning',
                     title: 'Error de validación',
@@ -648,10 +646,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 form.reset();
                 document.getElementById('sku').value = '';
 
-                if (typeof addProductToTable === 'function') {
-                    addProductToTable(data.product);
+                if (productId) {
+                    // MODO EDICIÓN: Actualizar la fila existente
+                    updateProductInTable(data.product);
+                } else {
+                    // MODO CREACIÓN: Agregar fila nueva
+                    if (typeof addProductToTable === 'function') {
+                        addProductToTable(data.product);
+                    }
                 }
-
+                
                 Swal.fire({
                     icon: 'success',
                     title: 'Éxito',
@@ -687,8 +691,6 @@ document.addEventListener('DOMContentLoaded', function() {
             title.textContent = "Registrar Producto";
             saveBtn.textContent = "Guardar Producto";
             form.dataset.productId = "";
-            form.reset();
-            document.getElementById('sku').value = "";
         }
 
         if (mode === "edit") {
@@ -699,41 +701,68 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     /* --------------------------------------------------------------------------
-     *  EDITAR PRODUCTO — 100% FUNCIONAL
+     *  EDITAR PRODUCTO - CORREGIDO
      * -------------------------------------------------------------------------- */
     window.editProduct = async function(productId) {
         console.log(" Editar producto:", productId);
 
         setModalMode("edit");
-        form.onsubmit = null; 
         form.dataset.productId = productId; 
 
         try {
             const response = await fetch(`/admin/products/${productId}/edit`, {
-                headers: { 'Accept': 'application/json' }
+                headers: { 
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             });
+
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
 
             const data = await response.json();
             if (!data.product) throw new Error('No se encontraron datos');
 
             const p = data.product;
 
-            // Llenar formulario
-            form.querySelector('#name').value = p.name;
-            form.querySelector('#sku').value = p.sku;
+            // Información básica
+            form.querySelector('#name').value = p.name || '';
+            form.querySelector('#sku').value = p.sku || '';
             form.querySelector('#code').value = p.code || '';
-            form.querySelector('#unit_type').value = p.unit_type;
-            form.querySelector('#default_cost').value = p.default_cost;
-            form.querySelector('#default_price').value = p.default_price;
-            form.querySelector('#quantity').value = p.quantity;
-            form.querySelector('#min_stock').value = p.min_stock;
-            form.querySelector('#max_stock').value = p.max_stock;
-            form.querySelector('#entry_date').value = p.entry_date;
-            form.querySelector('#expiration_date').value = p.expiration_date || '';
-
-            form.querySelector('#active').checked = p.active;
-            form.querySelector('#track_quantity').checked = p.track_quantity;
-            form.querySelector('#track_expiration').checked = p.track_expiration;
+            
+            // Unidad - CORREGIDO: usar unit_id en lugar de unit_type
+            const unitSelect = form.querySelector('#unit_id');
+            if (unitSelect && p.unit_id) {
+                unitSelect.value = p.unit_id;
+            }
+            
+            // Categoría
+            const categorySelect = form.querySelector('#category_id');
+            if (categorySelect && p.category_id) {
+                categorySelect.value = p.category_id;
+            }
+            
+            // Precios
+            form.querySelector('#default_cost').value = p.default_cost || 0;
+            form.querySelector('#default_price').value = p.default_price || 0;
+            
+            // Inventario
+            if (p.inventory) {
+                form.querySelector('#min_stock').value = p.inventory.min_stock || 0;
+                form.querySelector('#max_stock').value = p.inventory.max_stock || 0;
+            } else {
+                form.querySelector('#min_stock').value = 0;
+                form.querySelector('#max_stock').value = 0;
+            }
+            
+            // Checkboxes
+            form.querySelector('#active').checked = p.active === 1;
+            form.querySelector('#track_quantity').checked = p.track_quantity === 1;
+            form.querySelector('#track_expiration').checked = p.track_expiration === 1;
+            
+            // Calcular margen después de cargar los valores
+            updateProfitMargin();
 
             formModal.show();
 
@@ -742,70 +771,77 @@ document.addEventListener('DOMContentLoaded', function() {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'No se pudo cargar la información del producto',
+                text: err.message || 'No se pudo cargar la información del producto',
             });
         }
     };
 
 
     /* --------------------------------------------------------------------------
-     *  STATS Y TOGGLES (SIN CAMBIOS)
+     *  STATS Y TOGGLES
      * -------------------------------------------------------------------------- */
     function updateStats(stats) {
-        const ids = {
-            totalProducts: 'totalProducts',
-            activeProducts: 'activeProducts',
-            inactiveProducts: 'inactiveProducts',
-            lowStockProducts: 'lowStockProducts'
+        const statElements = {
+            totalProducts: document.querySelector('.grid.grid-cols-1.md\\:grid-cols-4 .text-2xl.font-bold.text-gray-900:first-child'),
+            activeProducts: document.querySelectorAll('.grid.grid-cols-1.md\\:grid-cols-4 .text-2xl.font-bold.text-gray-900')[1],
+            inactiveProducts: document.querySelectorAll('.grid.grid-cols-1.md\\:grid-cols-4 .text-2xl.font-bold.text-gray-900')[2],
+            lowStockProducts: document.querySelectorAll('.grid.grid-cols-1.md\\:grid-cols-4 .text-2xl.font-bold.text-gray-900')[3]
         };
-        Object.entries(ids).forEach(([key, id]) => {
-            const el = document.getElementById(id);
-            if (el && stats[key] !== undefined) el.textContent = stats[key];
-        });
+        
+        if (stats.totalProducts && statElements.totalProducts) statElements.totalProducts.textContent = stats.totalProducts;
+        if (stats.activeProducts && statElements.activeProducts) statElements.activeProducts.textContent = stats.activeProducts;
+        if (stats.inactiveProducts && statElements.inactiveProducts) statElements.inactiveProducts.textContent = stats.inactiveProducts;
+        if (stats.lowStockProducts && statElements.lowStockProducts) statElements.lowStockProducts.textContent = stats.lowStockProducts;
     }
 
-/* -------------------------------------------------------------------------- */
-/* ACTIVAR / DESACTIVAR PRODUCTO (Toggle Simple)                         */
-/* -------------------------------------------------------------------------- */
+    window.toggleProductStatus = async function(id) {
+        console.log(' Toggle producto:', id);
 
-window.toggleProductStatus = async function(id) {
-    console.log('🔁 Toggle sin confirmación para producto:', id);
+        const button = event.currentTarget;
+        const isCurrentlyActive = button.classList.contains('bg-green-500');
+        const newState = !isCurrentlyActive;
 
-    const button = event.currentTarget;
-    const isCurrentlyActive = button.classList.contains('bg-green-500');
-    const newState = !isCurrentlyActive;
+        // Actualiza visualmente al instante
+        updateProductUI(id, newState);
 
-    // Actualiza visualmente al instante
-    updateProductUI(id, newState);
+        try {
+            const response = await fetch(`/admin/products/${id}/toggle`, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
 
-    try {
-        const response = await fetch(`/admin/products/${id}/toggle`, {
-            method: 'PATCH',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
+            const data = await response.json();
+
+            if (!data.success) {
+                // Revertir si fallo
+                updateProductUI(id, isCurrentlyActive);
+                console.error("Error:", data.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'Error al cambiar el estado del producto',
+                    timer: 2000
+                });
+            } else {
+                // Si tienes estadísticas, actualízalas
+                if (data.stats) updateStats(data.stats);
             }
-        });
 
-        const data = await response.json();
-
-        if (!data.success) {
-            // Revertir si fallo
+        } catch (error) {
+            console.error(" Error en toggle:", error);
             updateProductUI(id, isCurrentlyActive);
-            console.error("Error:", data.message);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error de conexión al cambiar el estado',
+                timer: 2000
+            });
         }
-
-        // Si tienes estadísticas, actualízalas
-        if (data.stats) updateStats(data.stats);
-
-    } catch (error) {
-        console.error(" Error en toggle:", error);
-
-        // Revertir si hay error de red
-        updateProductUI(id, isCurrentlyActive);
-    }
-};
+    };
 
     function updateProductUI(productId, isActive) {
         const button = document.querySelector(`button[onclick="toggleProductStatus(${productId})"]`);
@@ -822,7 +858,7 @@ window.toggleProductStatus = async function(id) {
             circle.classList.toggle('translate-x-1', !isActive);
         }
 
-        const badge = container.parentElement.querySelector('.status-badge');
+        const badge = container.querySelector('.status-badge');
         if (badge) {
             badge.textContent = isActive ? 'Activo' : 'Inactivo';
             badge.className = `status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -846,19 +882,182 @@ window.toggleProductStatus = async function(id) {
         const cost = parseFloat(document.getElementById('default_cost').value) || 0;
         const price = parseFloat(document.getElementById('default_price').value) || 0;
         const marginElement = document.getElementById('profit-margin');
-        const margin = cost > 0 && price > cost ? ((price - cost) / cost) * 100 : 0;
-
-        marginElement.querySelector('span:last-child').textContent = `${margin.toFixed(1)}%`;
-
-        marginElement.classList.toggle('text-green-600', margin > 50);
-        marginElement.classList.toggle('text-yellow-600', margin > 20 && margin <= 50);
-        marginElement.classList.toggle('text-red-600', margin <= 20);
+        
+        let margin = 0;
+        if (cost > 0) {
+            margin = ((price - cost) / cost) * 100;
+        }
+        
+        const marginSpan = marginElement.querySelector('span:last-child');
+        marginSpan.textContent = `${margin.toFixed(1)}%`;
+        
+        // Cambiar color según el margen
+        marginSpan.classList.remove('text-green-600', 'text-yellow-600', 'text-red-600');
+        if (margin > 50) {
+            marginSpan.classList.add('text-green-600');
+        } else if (margin > 20) {
+            marginSpan.classList.add('text-yellow-600');
+        } else if (margin > 0) {
+            marginSpan.classList.add('text-red-600');
+        }
     }
 
     document.getElementById('default_cost').addEventListener('input', updateProfitMargin);
     document.getElementById('default_price').addEventListener('input', updateProfitMargin);
+    
+    // Inicializar margen
+    updateProfitMargin();
 });
-</script>
 
+// ============================================
+// FUNCIÓN PARA AGREGAR PRODUCTO A LA TABLA SIN RECARGAR
+// ============================================
+window.addProductToTable = function(product) {
+    console.log('Agregando producto a la tabla:', product);
+    
+    const tbody = document.querySelector('.bg-white.divide-y.divide-gray-200');
+    
+    if (!tbody) {
+        console.warn('No se encontró el tbody de la tabla');
+        return;
+    }
+    
+    // Si la tabla tiene un mensaje de "No hay productos", eliminarlo
+    const emptyMessage = tbody.querySelector('tr td[colspan="10"]');
+    if (emptyMessage && emptyMessage.parentElement) {
+        emptyMessage.parentElement.remove();
+    }
+    
+    // Crear la nueva fila
+    const newRow = document.createElement('tr');
+    newRow.className = 'hover:bg-gray-50';
+    newRow.id = `product-row-${product.id}`;
+    
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    newRow.innerHTML = `
+        <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">${product.id}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-900">${escapeHtml(product.name)}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-500">${escapeHtml(product.sku || 'N/A')}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-500">${escapeHtml(product.code || 'N/A')}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">${product.unit ? escapeHtml(product.unit.name) : 'N/A'}</td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            ${product.category ? `
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                      style="background-color: ${product.category.color}20; color: ${product.category.color}">
+                    <span class="w-2 h-2 rounded-full mr-1" style="background-color: ${product.category.color}"></span>
+                    ${escapeHtml(product.category.name)}
+                </span>
+            ` : `
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                    <span class="w-2 h-2 rounded-full bg-gray-400 mr-1"></span>
+                    Sin categoría
+                </span>
+            `}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">$${parseFloat(product.default_cost || 0).toFixed(2)}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">$${parseFloat(product.default_price || 0).toFixed(2)}</td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex flex-col items-center space-y-2" data-id="${product.id}">
+                <button onclick="toggleProductStatus(${product.id})"
+                    class="group relative inline-flex items-center h-7 rounded-full w-14 transition-all duration-300 ${product.active ? 'bg-green-500' : 'bg-gray-300'}">
+                    <span class="inline-block w-5 h-5 transform bg-white rounded-full transition-all duration-300 shadow-sm ${product.active ? 'translate-x-8' : 'translate-x-1'}"></span>
+                </button>
+                <span class="status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${product.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                    <span class="w-1.5 h-1.5 rounded-full mr-1 ${product.active ? 'bg-green-500' : 'bg-red-500'}"></span>
+                    ${product.active ? 'Activo' : 'Inactivo'}
+                </span>
+            </div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-center font-medium space-x-2">
+            <div class="relative group">
+                <div class="flex space-x-4 justify-center">
+                    <button onclick="editProduct(${product.id})"
+                        class="p-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all duration-200 hover:scale-110 hover:shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </td>
+    `;
+    
+    tbody.prepend(newRow);
+    
+    // Actualizar contadores de estadísticas
+    updateProductStatsAfterAdd();
+    
+    console.log('✅ Producto agregado a la tabla correctamente');
+};
+
+function updateProductStatsAfterAdd() {
+    const statsElements = document.querySelectorAll('.grid.grid-cols-1.md\\:grid-cols-4 .text-2xl.font-bold.text-gray-900');
+    if (statsElements.length >= 2) {
+        const currentTotal = parseInt(statsElements[0].textContent) || 0;
+        const currentActive = parseInt(statsElements[1].textContent) || 0;
+        statsElements[0].textContent = currentTotal + 1;
+        statsElements[1].textContent = currentActive + 1;
+    }
+}
+
+window.updateProductInTable = function(product) {
+    const row = document.getElementById(`product-row-${product.id}`);
+    if (!row) {
+        window.location.reload(); 
+        return;
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    row.innerHTML = `
+        <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">${product.id}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-900">${escapeHtml(product.name)}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-500">${escapeHtml(product.sku || 'N/A')}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-500">${escapeHtml(product.code || 'N/A')}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">${product.unit ? escapeHtml(product.unit.name) : 'N/A'}</td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            ${product.category ? `
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                      style="background-color: ${product.category.color}20; color: ${product.category.color}">
+                    <span class="w-2 h-2 rounded-full mr-1" style="background-color: ${product.category.color}"></span>
+                    ${escapeHtml(product.category.name)}
+                </span>
+            ` : `<span class="text-gray-400">Sin categoría</span>`}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">$${parseFloat(product.default_cost || 0).toFixed(2)}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-900">$${parseFloat(product.default_price || 0).toFixed(2)}</td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex flex-col items-center space-y-2">
+                <button onclick="toggleProductStatus(${product.id})"
+                    class="group relative inline-flex items-center h-7 rounded-full w-14 transition-all duration-300 ${product.active ? 'bg-green-500' : 'bg-gray-300'}">
+                    <span class="inline-block w-5 h-5 transform bg-white rounded-full transition-all duration-300 shadow-sm ${product.active ? 'translate-x-8' : 'translate-x-1'}"></span>
+                </button>
+                <span class="status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${product.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                    ${product.active ? 'Activo' : 'Inactivo'}
+                </span>
+            </div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-center font-medium">
+            <button onclick="editProduct(${product.id})" class="p-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+            </button>
+        </td>
+    `;
+    
+    row.classList.add('bg-blue-50');
+    setTimeout(() => row.classList.remove('bg-blue-50'), 2000);
+};
+</script>
 
 </x-app-layout>

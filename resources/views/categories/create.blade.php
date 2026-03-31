@@ -664,49 +664,66 @@
         }
 
         // Función para abrir modal de edición
-        async function editCategory(categoryId) {
-            try {
-                const response = await fetch(`/categories/${categoryId}/edit`, {
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                const data = await response.json();
-
-                if (!data.success) throw new Error(data.message || 'Error al cargar categoría');
-
-                // Rellenar modal con los datos
-                document.getElementById('category_id').value = "";
-                document.getElementById('category_name').value = data.category.name;
-                document.getElementById('category_code').value = data.category.code || '';
-                document.getElementById('category_description').value = data.category.description || '';
-                document.getElementById('category_color').value = data.category.color || '#6B7280';
-                document.getElementById('category_sort_order').value = data.category.sort_order || 0;
-                document.getElementById('category_parent').value = data.category.parent_id || '';
-                document.getElementById('category_is_active').checked = data.category.is_active;
-
-                // Actualizar título del modal
-                document.getElementById('modal-title').innerHTML = `
-                    <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    Editar Categoría
-                `;
-                document.getElementById('save-category-btn').innerHTML = `
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Actualizar Categoría
-                `;
-
-                // Abrir modal
-                showCategoryModal();
-
-            } catch (error) {
-                console.error(error);
-                showNotification(error.message || 'Error al cargar categoría', 'error');
+        // Función para abrir modal de edición
+async function editCategory(categoryId) {
+    console.log('Editando categoría ID:', categoryId); // ← LOG
+    
+    try {
+        const response = await fetch(`/categories/${categoryId}/edit`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             }
+        });
+        
+        console.log('Response status:', response.status); // ← LOG
+        
+        const data = await response.json();
+        console.log('Data recibida:', data); // ← LOG MUY IMPORTANTE
+
+        if (!data.success) {
+            throw new Error(data.message || 'Error al cargar categoría');
         }
+
+        // Verificar que data.category existe
+        if (!data.category) {
+            throw new Error('La respuesta no contiene category');
+        }
+
+        console.log('Categoría cargada:', data.category); // ← LOG
+
+        // ✅ Asignar el ID correctamente
+        document.getElementById('category_id').value = data.category.id;
+        document.getElementById('category_name').value = data.category.name;
+        document.getElementById('category_code').value = data.category.code || '';
+        document.getElementById('category_description').value = data.category.description || '';
+        document.getElementById('category_color').value = data.category.color || '#6B7280';
+        document.getElementById('category_sort_order').value = data.category.sort_order || 0;
+        document.getElementById('category_parent').value = data.category.parent_id || '';
+        document.getElementById('category_is_active').checked = data.category.is_active;
+
+        // Actualizar título del modal
+        document.getElementById('modal-title').innerHTML = `
+            <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Editar Categoría
+        `;
+        document.getElementById('save-category-btn').innerHTML = `
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Actualizar Categoría
+        `;
+
+        // Abrir modal
+        showCategoryModal();
+
+    } catch (error) {
+        console.error('Error detallado:', error); // ← LOG
+        showNotification(error.message || 'Error al cargar categoría', 'error');
+    }
+}
 
         // Función para guardar categoría (crear o actualizar)
         async function saveCategory() {

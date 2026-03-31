@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\suppliers;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 
 class SuppliersController extends Controller
@@ -12,7 +12,8 @@ class SuppliersController extends Controller
      */
     public function create()
     {
-        $supplier = suppliers::paginate(20);
+        $supplier = Supplier::paginate(20);
+
         return view('suppliers.create', compact('supplier'));
     }
 
@@ -21,50 +22,39 @@ class SuppliersController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'contact_name' => 'required|string|max:255',
-                'phone' => 'required|digits_between:7,15',
-                'email' => 'required|email|max:255',
-                'address' => 'required|string|max:255',
-                'ruc' => 'required|max:15|unique:suppliers,ruc',
-                'notes' => 'nullable|string|max:1000'
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'contact_name' => 'required|string|max:255',
+            'phone' => 'required|digits_between:7,15',
+            'email' => 'required|email|max:255',
+            'address' => 'required|string|max:255',
+            'ruc' => 'required|max:15|unique:suppliers,ruc',
+            'notes' => 'nullable|string|max:1000',
+        ], [
+            // MENSAJES PERSONALIZADOS
+            'ruc.unique' => 'Este RUC ya está registrado, intenta con otro.',
+            'ruc.required' => 'El RUC es obligatorio.',
+        ]);
+
+        $supplier = Supplier::create($validated);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Proveedor registrado correctamente',
+                'supplier' => $supplier,
             ]);
-
-            $supplier = Suppliers::create($validated);
-
-            // 🔥 Si la petición viene de AJAX (fetch)
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Proveedor registrado correctamente',
-                    'supplier' => $supplier
-                ]);
-            }
-
-            // En caso de ser una petición normal (desde navegador)
-            return redirect()
-                ->route('suppliers.create')
-                ->with('success', 'Proveedor registrado correctamente');
-        } catch (\Exception $e) {
-            // Manejo de error
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Ocurrió un error al guardar el proveedor',
-                    'error' => $e->getMessage()
-                ], 500);
-            }
-
-            return redirect()->back()->with('error', 'Ocurrió un error al guardar el proveedor');
         }
+
+        return redirect()->route('suppliers.create')
+            ->with('success', 'Proveedor registrado correctamente');
     }
 
     /**
      * Actualizar un proveedor existente
      */
-    public function update(Request $request, Suppliers $supplier)
+    public function update(Request $request, Supplier $supplier)
     {
         try {
             $validated = $request->validate([
@@ -73,8 +63,8 @@ class SuppliersController extends Controller
                 'phone' => 'required|digits_between:7,15',
                 'email' => 'required|email|max:255',
                 'address' => 'required|string|max:255',
-                'ruc' => 'required|max:15|unique:suppliers,ruc,' . $supplier->id,
-                'notes' => 'nullable|string|max:1000'
+                'ruc' => 'required|max:15|unique:suppliers,ruc,'.$supplier->id,
+                'notes' => 'nullable|string|max:1000',
             ]);
 
             $supplier->update($validated);
@@ -83,7 +73,7 @@ class SuppliersController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Proveedor actualizado correctamente',
-                    'supplier' => $supplier
+                    'supplier' => $supplier,
                 ]);
             }
 
@@ -95,14 +85,15 @@ class SuppliersController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Error al actualizar el proveedor',
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ], 500);
             }
 
             return redirect()->back()->with('error', 'Error al actualizar el proveedor');
         }
     }
-    public function destroy(Request $request, suppliers $supplier)
+
+    public function destroy(Request $request, Supplier $supplier)
     {
         try {
             $supplier->delete();
@@ -111,7 +102,7 @@ class SuppliersController extends Controller
                 ->route('suppliers.create')
                 ->with('success', 'Proveedor eliminado correctamente')->with('toast', 'deleted');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error al eliminar el proveedor') ->with('toast', 'error'); 
+            return redirect()->back()->with('error', 'Error al eliminar el proveedor')->with('toast', 'error');
         }
-    }   
+    }
 }

@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('inventories', function (Blueprint $table) {
             $table->id();
              $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+             $table->unique('product_id');
             $table->decimal('available_quantity', 12, 3)->default(0)->comment('Cantidad disponible');
-            $table->decimal('min_stock', 12, 3)->default(0)->comment('Stock mínimo alerta');
-            $table->decimal('max_stock', 12, 3)->nullable()->comment('Stock máximo recomendado');
+            $table->decimal('min_stock', 12, 0)->default(0)->comment('Stock mínimo alerta');
+            $table->decimal('max_stock', 12, 0)->nullable()->comment('Stock máximo recomendado');
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
@@ -27,8 +28,7 @@ return new class extends Migration
             $table->index('available_quantity');
             $table->index('deleted_at');
             
-            // Unique constraint para evitar inventarios duplicados
-            $table->unique(['product_id', 'deleted_at']);
+       
         });
     }
 

@@ -552,11 +552,18 @@ function closeCashModal() {
                 title: '¿Eliminar producto?',
                 text: 'Esta acción eliminará el producto del carrito.',
                 icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
+                            showCancelButton: true,
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar',
+                    buttonsStyling: false, 
+                    customClass: {
+                        // Esto crea el espacio perfecto entre ambos botones
+                        actions: 'flex gap-4', 
+                        
+                        // Botones limpios sin márgenes extraños
+                        confirmButton: 'bg-red-600 text-white font-medium px-4 py-2 rounded-lg hover:bg-red-700 transition-colors',
+                        cancelButton: 'bg-gray-500 text-white font-medium px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors'
+                    }
             }).then((result) => {
                 if (result.isConfirmed) {
                     cart.splice(index, 1);
@@ -571,6 +578,7 @@ function closeCashModal() {
                         showConfirmButton: false,
                         timer: 2000,
                         timerProgressBar: true
+                        
                     });
                 }
             });

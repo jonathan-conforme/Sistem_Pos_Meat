@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Sale;
 use App\Models\Empresa;
-use App\Models\sale_items;
+use App\Models\Sale_items;
 
 class PdfController extends Controller
 {

@@ -20,13 +20,18 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SaleItemsController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\SuppliersController;
+use App\Http\Controllers\PurchasesController;
+use App\Http\Controllers\UnitController;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\InventoryMovementsController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Finanzas\ResumenController;
+
 
 // ==================== RUTAS PÚBLICAS ====================
 Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
-
+    return redirect()->route('login');
+});
 // Landing pages públicas
 Route::prefix('landing')->group(function () {
     Route::get('about', function () {
@@ -153,7 +158,14 @@ Route::middleware('auth')->group(function () {
         Route::resource('empresa', EmpresaController::class);
         Route::resource('income', IngresoController::class);
         Route::resource('expenses', ExpenseController::class);
+        Route::resource('resumen', ResumenController::class);
         Route::resource('movimientos', MovimientoController::class);
         Route::resource('cuentas', CuentaController::class);
+        Route::resource('purchases', PurchasesController::class);
+        Route::resource('units', UnitController::class);
+        Route::resource('inventory', InventoryController::class);
+        Route::resource('inventory-movements', InventoryMovementsController::class);
+        Route::patch('units/{unit}/toggle', [UnitController::class, 'toggle'])
+    ->name('units.toggle');
     });
 });

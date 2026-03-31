@@ -105,14 +105,30 @@ class CategoriesController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
+/**
+ * Show the form for editing the specified resource.
+ */
 public function edit($id)
 {
-    $category = Category::findOrFail($id);
-
-    return response()->json([
-        'success' => true,
-        'category' => $category
-    ]);
+    \Log::info('Editando categoría ID: ' . $id); // ← LOG
+    
+    try {
+        $category = Category::findOrFail($id);
+        
+        \Log::info('Categoría encontrada: ' . $category->name); // ← LOG
+        
+        return response()->json([
+            'success' => true,
+            'category' => $category
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Error en edit: ' . $e->getMessage()); // ← LOG
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Categoría no encontrada: ' . $e->getMessage()
+        ], 404);
+    }
 }
 
 
