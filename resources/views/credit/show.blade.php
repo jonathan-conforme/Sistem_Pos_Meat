@@ -1,6 +1,6 @@
-<x-slot name="header">
+<h1 name="header">
     <h2 class="font-semibold text-xl text-gray-800">Detalle de Crédito: {{ $sale->sale_number }}</h2>
-</x-slot>
+</h2>
 
 <div class="p-4 sm:p-6 bg-white rounded-lg shadow space-y-6">
     <!-- Resumen del crédito - RESPONSIVE -->
@@ -12,7 +12,7 @@
             </p>
         </div>
         <div class="text-center">
-            <p class="text-xs sm:text-sm text-gray-600">Total</p>
+            <p class="text-xs sm:text-sm text-gray-600">Total de la venta</p>
             <p class="font-semibold text-gray-800 text-sm sm:text-base">${{ number_format($sale->subtotal, 2) }}</p>
         </div>
         <div class="text-center">
@@ -20,7 +20,7 @@
             <p class="font-semibold text-green-600 text-sm sm:text-base">${{ number_format($sale->total_paid, 2) }}</p>
         </div>
         <div class="text-center">
-            <p class="text-xs sm:text-sm text-gray-600">Saldo</p>
+            <p class="text-xs sm:text-sm text-gray-600">Saldo por pagar</p>
             <p class="font-semibold text-red-600 text-sm sm:text-base">${{ number_format($sale->remaining, 2) }}</p>
         </div>
     </div>
@@ -64,8 +64,8 @@
 
             <!-- Botón -->
             <div class="flex-shrink-0 w-full sm:w-auto">
-                <button
-                    type="submit"
+                <button id="submitPaymentButton"
+                    type="button" 
                     class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition-colors">
                     <i class="fas fa-plus"></i>
                     Agregar Pago
@@ -95,7 +95,7 @@
                             <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notas</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody id="paymentsTableBody" class="bg-white divide-y divide-gray-200">
                         @foreach($sale->payments as $payment)
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -142,7 +142,7 @@
         </div>
 
         <!-- Versión móvil (cards) -->
-        <div class="md:hidden space-y-3">
+        <div id="paymentsMobileContainer" class="md:hidden space-y-3">
             @foreach($sale->payments as $payment)
             <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                 <div class="flex justify-between items-start mb-2">
@@ -191,7 +191,7 @@
         <!-- Resumen total de pagos -->
         <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
             <div class="flex justify-between items-center">
-                <span class="text-sm font-medium text-blue-700">Total pagado:</span>
+                <span class="paid text-sm font-medium text-blue-700">Total pagado:</span>
                 <span class="text-lg font-bold text-blue-800">${{ number_format($sale->total_paid, 2) }}</span>
             </div>
         </div>
@@ -204,47 +204,3 @@
         @endif
     </div>
 </div>
-
-<script>
-    $('#paymentForm').on('submit', function(e) {
-        e.preventDefault();
-
-        $.ajax({
-            url: '{{ route("credit.pay", $sale) }}',
-            method: 'POST',
-            data: $(this).serialize(),
-            dataType: 'json',
-            beforeSend: function() {
-                Swal.fire({
-                    title: 'Registrando pago...',
-                    text: 'Por favor espera un momento',
-                    allowOutsideClick: false,
-                    didOpen: () => Swal.showLoading(),
-                });
-            },
-            success: function(res) {
-                Swal.fire({
-                    icon: 'success',
-                    title: '✅ Pago registrado',
-                    text: res.message,
-                    confirmButtonText: 'Aceptar',
-                    timer: 2000,
-                    timerProgressBar: true
-                }).then(() => {
-                    location.reload();
-                });
-            },
-            error: function(xhr) {
-                let msg = 'No se pudo registrar el pago.';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    msg = xhr.responseJSON.message;
-                }
-                Swal.fire({
-                    icon: 'error',
-                    title: '❌ Error',
-                    text: msg
-                });
-            }
-        });
-    });
-</script>

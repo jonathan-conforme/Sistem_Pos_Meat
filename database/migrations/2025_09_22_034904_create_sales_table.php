@@ -21,7 +21,11 @@ return new class extends Migration
             $table->enum('payment_type', ['cash', 'card', 'transfer', 'credit'])->default('cash');
             $table->enum('status', ['pending', 'completed', 'cancelled'])->default('completed');
             $table->text('comments')->nullable();
-            $table->foreignId('customer_id')->nullable()->constrained('customers')->nullOnDelete();
+            $table->decimal('amount_paid', 12, 2)->nullable()->comment('Monto recibido');
+            $table->decimal('change', 12, 2)->default(0)->comment('Cambio entregado');
+            
+            // Relaciones
+            $table->foreignId('branch_id')->nullable()->constrained()->cascadeOnDelete();            $table->foreignId('customer_id')->nullable()->constrained('customers')->nullOnDelete();
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('completed_at')->nullable();
@@ -29,6 +33,7 @@ return new class extends Migration
             $table->softDeletes();
             
             // Índices
+            $table->index('branch_id');
             $table->index('sale_number');
             $table->index('customer_id');
             $table->index('payment_type');

@@ -4,24 +4,41 @@ namespace App\Http\Controllers;
 
 use App\Models\Sale;
 use App\Models\Empresa;
-use App\Models\sale_items;
-use App\Models\Customer;  // ← Cambiado de 'customer' a 'Customer'
+use App\Models\Sale_items;
+use App\Models\Customer;  
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;  // ← Cambiado de 'barryvdh' a 'Barryvdh'
+use Barryvdh\DomPDF\Facade\Pdf;  
 use Illuminate\Support\Facades\Storage;
 class InvoiceController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $sales = Sale::with(['customer', 'items.product', 'createdBy'])
-                    ->latest()
-                    ->paginate(20);
-        
-        return view('invoices.index', compact('sales'));
+  public function index(Request $request)
+{
+    $query = Sale::with(['customer', 'items.product', 'createdBy'])
+                 ->latest();
+
+    // 🔹 Filtro de búsqueda opcional
+    if ($search = $request->query('search')) {
+        $query->where(function($q) use ($search) {
+            $q->where('sale_number', 'like', "%{$search}%")
+              ->orWhereHas('customer', function($q2) use ($search) {
+                  $q2->where('name', 'like', "%{$search}%")
+                     ->orWhere('cedula', 'like', "%{$search}%");
+              });
+        });
     }
+
+    // 🔹 Clonar la consulta para obtener total antes de paginar
+    $totalSales = (clone $query)->count();
+
+    // 🔹 Obtener resultados paginados
+    $sales = $query->paginate(20)->withQueryString(); // Mantiene parámetros de búsqueda en la paginación
+
+    return view('invoices.index', compact('sales', 'totalSales'));
+}
+
 
     /**
      * Show the form for creating a new resource.
@@ -76,20 +93,6 @@ class InvoiceController extends Controller
         //
     }
 
-    /**
-     * Generate PDF invoice
-     */
-    public function generatePDF($id)
-    {
-        $sales = Sale::with(['customer', 'items.product', 'createdBy'])
-                    ->findOrFail($id);
-
-        $empresa = Empresa::first(); // ← Cambiado de 'empresas' a 'empresa'
-
-        $pdf = Pdf::loadView('invoices.pdf', compact('sales', 'empresa')); // ← Y aquí también
-
-        return $pdf->download("factura-{$sales->sale_number}.pdf");
-    }
 
     /**
      * Print invoice view
@@ -138,6 +141,23 @@ class InvoiceController extends Controller
 
     // Redirigir a WhatsApp Web/App
     return redirect("https://wa.me/{$sale->customer->phone}?text={$message}");
+}
+public function pdf(Sale $invoice)
+{
+    $invoice->load([
+        'customer',
+        'items.product',
+        'createdBy'
+    ]);
+
+    $empresa = Empresa::first();
+
+    $pdf = Pdf::loadView('invoices.pdf', [
+        'sales' => $invoice,
+        'empresa' => $empresa
+    ])->setPaper('A4', 'portrait');
+
+    return $pdf->download('Factura_'.$invoice->sale_number.'.pdf');
 }
 
 }

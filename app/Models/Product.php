@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Builder;
 
 class Product extends Model
 {
@@ -15,28 +15,37 @@ class Product extends Model
         'name',
         'sku',
         'code',
-        'unit_type',
+        'unit_id',
         'default_cost',
         'default_price',
-        'quantity',
         'min_stock',
         'max_stock',
         'creation_date',
-        'entry_date',
-        'expiration_date',
-        'manufacture_date',
         'active',
         'track_expiration',
         'track_quantity',
         'created_by',
         'updated_by',
-        'category_id'
+        'category_id',
 
     ];
+
+    protected $casts = [
+        'active' => 'boolean',
+        'track_expiration' => 'boolean',
+        'track_quantity' => 'boolean',
+        'default_cost' => 'decimal:2',
+        'default_price' => 'decimal:2',
+        'min_stock' => 'decimal:2',
+        'max_stock' => 'decimal:2',
+        'creation_date' => 'date',
+    ];
+
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Categories::class, 'category_id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -81,8 +90,9 @@ class Product extends Model
         // 2. Buscar el número máximo usado para este prefijo
         $lastSkuNumber = self::where('sku', 'like', "{$initials}-%")
             ->get()
-            ->map(function ($item) use ($initials) {
+            ->map(function ($item) {
                 $parts = explode('-', $item->sku);
+
                 return isset($parts[1]) ? intval($parts[1]) : 0;
             })
             ->max();
@@ -94,6 +104,7 @@ class Product extends Model
 
         return "{$initials}-{$number}";
     }
+
     public function scopeActive($query)
     {
         return $query->where('active', true);
@@ -102,5 +113,40 @@ class Product extends Model
     public function scopeByCategory($query, $categoryId)
     {
         return $query->where('category_id', $categoryId);
+    }
+
+    public function Unit(): BelongsTo
+    {
+        return $this->belongsTo(Unit::class);
+    }
+
+    public function inventory()
+    {
+        return $this->hasOne(Inventory::class);
+    }
+
+    public function inventoryMovements()
+    {
+        return $this->hasMany(InventoryMovement::class);
+    }
+
+    /**
+     * Verificar si el producto está agotado
+     */
+    public function isOutOfStock(): bool
+    {
+        if (! $this->inventory) {
+            return true;
+        }
+
+        return $this->inventory->available_quantity <= 0;
+    }
+
+    /**
+     * Obtener el stock actual
+     */
+    public function getCurrentStock(): float
+    {
+        return $this->inventory ? $this->inventory->available_quantity : 0;
     }
 }

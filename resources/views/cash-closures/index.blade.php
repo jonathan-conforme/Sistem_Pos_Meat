@@ -7,6 +7,11 @@
                 + Nuevo Cierre
             </a>
         </div>
+@if(session('error'))
+    <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded mb-4">
+        {{ session('error') }}
+    </div>
+@endif
 
         {{-- Tabla de cierres --}}
         <div class="overflow-x-auto">
@@ -120,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
 
             try {
-                // 🔹 Llamar al show.blade.php (ruta del controlador)
+                // 🔹 ruta
                 const response = await fetch(`/cash-closures/${id}`);
                 const html = await response.text();
                 modalContent.innerHTML = html;
@@ -141,5 +146,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-
+ <x-toast />
 </x-app-layout>

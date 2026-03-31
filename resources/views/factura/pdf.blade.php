@@ -158,7 +158,7 @@
                 <div style="margin-top: 8px; padding-top: 5px; border-top: 1px solid #ccc;">
                     <span class="text-bold">CLAVE ACCESO:</span>
 
-                    <!-- Código de barras generado en PHP -->
+                    <!-- Código de barras generado en  -->
                     <div class="text-center">
                         <img src="data:image/png;base64,{{ $barcode }}" alt="Código de barras" class="barcode">
                     </div>

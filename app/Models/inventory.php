@@ -4,12 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class inventory extends Model
+class Inventory extends Model
 {
     //
+        protected $fillable = [
+            'product_id',
+            'available_quantity',
+            'min_stock',
+            'max_stock',
+            'created_by',
+            'updated_by'
+        ];
     public function product()
 {
-    return $this->belongsTo(Product::class);
+    return $this->BelongsTo(Product::class);
 }
 
 }

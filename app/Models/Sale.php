@@ -11,12 +11,17 @@ class Sale extends Model
         'customer_id',
         'created_by',
         'subtotal',
-        'tax.00',
+        'tax',
         'discount',
         'total',
         'payment_type',
         'status',
-        'notes',
+        'comments',
+        'completed_at',
+        'amount_paid',
+        'change',
+        'updated_by'
+
     ];
 
     public function items()

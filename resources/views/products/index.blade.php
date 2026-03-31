@@ -43,7 +43,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead class="bg-gray-50">
-                            <tr>
+                            <tr id="product-row-{{ $product->id }}" class="hover:bg-gray-50>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
@@ -123,5 +123,6 @@
             });
         });
     </script>
+    
 <x-toast />
 </x-app-layout>

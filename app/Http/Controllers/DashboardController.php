@@ -2,20 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Sale;
-use App\Models\sale_items;
+use App\Models\CashClosure;
+use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Empresa;
-use App\Models\categories;
 use App\Models\Product;
-use App\Models\Suppliers;
+use App\Models\Sale;
+use App\Models\Sale_items;
+use App\Models\Supplier;
 use App\Models\User;
-use App\Models\CashClosure; // 👈 Asegúrate de importar este modelo
-use Illuminate\Http\Request;
-use Illuminate\View\View;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
@@ -29,11 +27,11 @@ class DashboardController extends Controller
 
         $salesThisWeek = Sale::whereBetween('created_at', [
             now()->startOfWeek(),
-            now()->endOfWeek()
+            now()->endOfWeek(),
         ])->count();
         $salesThisWeekAmount = Sale::whereBetween('created_at', [
             now()->startOfWeek(),
-            now()->endOfWeek()
+            now()->endOfWeek(),
         ])->sum('total');
 
         $salesThisMonth = Sale::whereMonth('created_at', now()->month)
@@ -69,9 +67,9 @@ class DashboardController extends Controller
         $invoicesThisMonth = $salesThisMonth;
         $totalCustomers = Customer::count();
         $totalCompanies = Empresa::count();
-        $totalCategories = categories::count();
+        $totalCategories = Category::count();
         $totalProducts = Product::count();
-        $totalSuppliers = Suppliers::count();
+        $totalSuppliers = Supplier::count();
         $totalUsers = User::count();
 
         $recentSales = Sale::with(['customer', 'items.product'])
@@ -94,8 +92,7 @@ class DashboardController extends Controller
         $myTodayClosure = CashClosure::today()->user($userId)->first();
 
         $todayClosures = CashClosure::today()->with('user')->get();
-        $activeUsers = User::count(); // contamos todos los usuarios
-
+        $activeUsers = User::count(); // Contador de usuarios
 
         $totalSalesToday = Sale::whereDate('created_at', today())
             ->where('status', 'completed')
@@ -115,11 +112,13 @@ class DashboardController extends Controller
             'my_cash_sales' => $myTodaySales->where('payment_type', 'cash')->sum('total'),
             'my_card_sales' => $myTodaySales->where('payment_type', 'card')->sum('total'),
             'my_transfer_sales' => $myTodaySales->where('payment_type', 'transfer')->sum('total'),
-            'my_credit_sales' => $myTodaySales->where('payment_type', 'credit')->sum('total'),
-            'my_total_sales' => $myTodaySales->sum('total'),
+            'my_credit_sales' => Sale::whereDate('created_at', today())
+                ->where('created_by', $userId)
+                ->where('payment_type', 'credit')
+                ->sum('subtotal'),
+            'my_total_sales' => $myTodaySales->sum('subtotal'),
             'my_profit' => $myTodayProfit,
             'my_sales_count' => $myTodaySales->count(),
-
             'today_closures_count' => $todayClosures->count(),
             'active_users_count' => $activeUsers,
             'total_sales_today' => $totalSalesToday,
@@ -149,14 +148,15 @@ class DashboardController extends Controller
             'totalSuppliers',
             'totalUsers',
             'recentSales',
-            'cashClosureStats' // 👈 agregado sin romper el resto
+            'cashClosureStats'
         ));
     }
 
-    // Métodos AJAX (sin cambios)
+    // Métodos AJAX
     public function getStats(): \Illuminate\Http\JsonResponse
     { /* ... */
     }
+
     public function getChartData(): \Illuminate\Http\JsonResponse
     { /* ... */
     }

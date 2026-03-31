@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="flex flex-col items-center justify-center h-[80vh] text-center px-4">
         <!-- Imagen divertida -->
-        <img src="{{ asset('image/trabajar.svg') }}" alt="Señalando" class="w-64 mb-6">
+        <img src="{{ asset('image/trabajo.svg') }}" alt="Señalando" class="w-64 mb-6">
 
         <!-- Mensaje -->
         <h1 class="text-5xl font-bold text-purple-900 mb-4">¡Ponte a trabajar mejor!</h1>
@@ -13,3 +13,4 @@
         </a>
     </div>
 </x-app-layout>
+ 

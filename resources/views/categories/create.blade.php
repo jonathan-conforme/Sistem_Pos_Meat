@@ -105,10 +105,10 @@
                             <option value="inactive">Inactivas</option>
                         </select>
 
-                       
+
                     </div>
                     <div class="flex gap-4">
-                     <select
+                        <select
                             id="parent-filter"
                             onchange="filterTable()"
                             class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200">
@@ -144,7 +144,7 @@
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($categories as $category)
-                            <tr class="hover:bg-gray-50 transition duration-150 category-row"
+                            <tr id="row-{{ $category->id }}" class="hover:bg-gray-50 transition duration-150 category-row"
                                 data-name="{{ strtolower($category->name) }}"
                                 data-status="{{ $category->is_active ? 'active' : 'inactive' }}"
                                 data-parent="{{ $category->parent_id ? 'sub' : 'main' }}"
@@ -223,17 +223,26 @@
                                         </div>
 
                                         <!-- Botón Eliminar -->
+
+
                                         <div class="relative group">
-                                            <button onclick="deleteCategory({{ $category->id }})"
-                                                class="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 
-                                                       transition-all duration-200 hover:scale-110 hover:shadow-sm
-                                                       focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                                title="Eliminar categoría">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                            </button>
+                                            <form id="delete-form-{{ $category->id }}" action="{{ route('categories.destroy', $category->id) }}" method="POST" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button
+                                                    type="button"
+                                                    onclick="confirmDeleteSweetAlert({{ $category->id }}, '{{ $category->name }}')"
+                                                    class="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 
+                   transition-all duration-200 hover:scale-110 hover:shadow-sm
+                   focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                                    title="Eliminar categoría">
+
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </form>
                                             <!-- Tooltip -->
                                             <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block">
                                                 <div class="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
@@ -242,9 +251,19 @@
                                                 </div>
                                             </div>
                                         </div>
+
+
+
                                     </div>
+
                                 </td>
+
+
                             </tr>
+                            <!-- Modal de confirmación -->
+
+
+
                             @empty
                             <tr>
                                 <td colspan="7" class="px-6 py-8 text-center text-gray-500">
@@ -255,6 +274,7 @@
                                     <p class="text-gray-600">Comienza creando tu primera categoría</p>
                                 </td>
                             </tr>
+
                             @endforelse
                         </tbody>
                     </table>
@@ -266,6 +286,7 @@
                     {{ $categories->links() }}
                 </div>
                 @endif
+
             </div>
         </div>
     </div>
@@ -399,9 +420,7 @@
                         class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 resize-none placeholder-gray-400"
                         placeholder="Descripción opcional de la categoría..."></textarea>
                 </div>
-            </form>
-
-            <!-- Botones de Acción -->
+                 <!-- Botones de Acción -->
             <div class="flex justify-end space-x-3 p-6 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
                 <button type="button" onclick="closeCategoryModal()"
                     class="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:ring-2 focus:ring-gray-200 transition-all duration-200">
@@ -415,6 +434,9 @@
                     Guardar Categoría
                 </button>
             </div>
+            </form>
+
+           
         </div>
     </div>
 
@@ -430,12 +452,12 @@
                     </svg>
                     Vista Rápida
                 </h3>
-                <button type="button" onclick="closeQuickViewModal()"
-                    class="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 rounded-lg hover:bg-gray-100">
+               <!-- <button type="button" onclick="closeQuickViewModal()"
+                   class="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 rounded-lg hover:bg-gray-100">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                </button>
+                </button>-->
             </div>
 
             <!-- Contenido -->
@@ -460,8 +482,10 @@
         </div>
     </div>
 
+
     <!-- Container para Notificaciones -->
     <div id="notification-container" class="fixed top-4 right-4 space-y-4 z-50"></div>
+
 
     <!-- JavaScript Mejorado -->
     <script>
@@ -499,17 +523,56 @@
             generateCategoryCode();
         }
 
-        function closeCategoryModal() {
+        function showCategoryModal() {
             const modal = document.getElementById('category-modal');
             const content = modal.querySelector('.modal-content');
 
-            content.classList.remove('scale-100', 'opacity-100');
-            content.classList.add('scale-95', 'opacity-0');
-
+            modal.classList.remove('hidden');
             setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 50);
         }
+
+        function closeCategoryModal() {
+
+    // 🟧 Notificación para cancelar edición o creación
+    showNotification('Acción cancelada.', 'warning');
+
+    const modal = document.getElementById('category-modal');
+    const content = modal.querySelector('.modal-content');
+
+    // Animación de salida
+    content.classList.remove('scale-100', 'opacity-100');
+    content.classList.add('scale-95', 'opacity-0');
+
+    // RESET TOTAL del formulario después de cerrar el modal
+    setTimeout(() => {
+        modal.classList.add('hidden');
+
+        // 🧼 Limpieza completa
+        document.getElementById('category-form').reset();
+        document.getElementById('category_id').value = '';
+        document.getElementById('category_color').value = '#6B7280';
+        document.getElementById('category_is_active').checked = true;
+
+        // Regresar título y botón a "Crear"
+        document.getElementById('modal-title').innerHTML = `
+            <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Nueva Categoría
+        `;
+
+        document.getElementById('save-category-btn').innerHTML = `
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Guardar Categoría
+        `;
+    }, 300);
+}
+
 
         // =========================
         // 🔹 GENERAR CÓDIGO AUTOMÁTICO
@@ -601,48 +664,66 @@
         }
 
         // Función para abrir modal de edición
-        async function editCategory(categoryId) {
-            try {
-                const response = await fetch(`/categories/${categoryId}/edit`, {
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                const data = await response.json();
-
-                if (!data.success) throw new Error(data.message || 'Error al cargar categoría');
-
-                // Rellenar modal con los datos
-                document.getElementById('category_id').value = data.category.id;
-                document.getElementById('category_name').value = data.category.name;
-                document.getElementById('category_code').value = data.category.code || '';
-                document.getElementById('category_description').value = data.category.description || '';
-                document.getElementById('category_color').value = data.category.color || '#6B7280';
-                document.getElementById('category_sort_order').value = data.category.sort_order || 0;
-                document.getElementById('category_parent').value = data.category.parent_id || '';
-                document.getElementById('category_is_active').checked = data.category.is_active;
-
-                // Actualizar título del modal
-                document.getElementById('modal-title').innerHTML = `
-                    <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    Editar Categoría
-                `;
-                document.getElementById('save-category-btn').innerHTML = `
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Actualizar Categoría
-                `;
-
-                // Abrir modal
-                openCategoryModal();
-            } catch (error) {
-                console.error(error);
-                showNotification(error.message || 'Error al cargar categoría', 'error');
+        // Función para abrir modal de edición
+async function editCategory(categoryId) {
+    console.log('Editando categoría ID:', categoryId); // ← LOG
+    
+    try {
+        const response = await fetch(`/categories/${categoryId}/edit`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             }
+        });
+        
+        console.log('Response status:', response.status); // ← LOG
+        
+        const data = await response.json();
+        console.log('Data recibida:', data); // ← LOG MUY IMPORTANTE
+
+        if (!data.success) {
+            throw new Error(data.message || 'Error al cargar categoría');
         }
+
+        // Verificar que data.category existe
+        if (!data.category) {
+            throw new Error('La respuesta no contiene category');
+        }
+
+        console.log('Categoría cargada:', data.category); // ← LOG
+
+        // ✅ Asignar el ID correctamente
+        document.getElementById('category_id').value = data.category.id;
+        document.getElementById('category_name').value = data.category.name;
+        document.getElementById('category_code').value = data.category.code || '';
+        document.getElementById('category_description').value = data.category.description || '';
+        document.getElementById('category_color').value = data.category.color || '#6B7280';
+        document.getElementById('category_sort_order').value = data.category.sort_order || 0;
+        document.getElementById('category_parent').value = data.category.parent_id || '';
+        document.getElementById('category_is_active').checked = data.category.is_active;
+
+        // Actualizar título del modal
+        document.getElementById('modal-title').innerHTML = `
+            <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Editar Categoría
+        `;
+        document.getElementById('save-category-btn').innerHTML = `
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Actualizar Categoría
+        `;
+
+        // Abrir modal
+        showCategoryModal();
+
+    } catch (error) {
+        console.error('Error detallado:', error); // ← LOG
+        showNotification(error.message || 'Error al cargar categoría', 'error');
+    }
+}
 
         // Función para guardar categoría (crear o actualizar)
         async function saveCategory() {
@@ -650,8 +731,12 @@
             const formData = new FormData(form);
             const categoryId = document.getElementById('category_id').value;
 
+            // Si es edición, agregar método PUT
+            if (categoryId) {
+                formData.append('_method', 'PUT');
+            }
+
             const url = categoryId ? `/categories/${categoryId}` : "{{ route('categories.store') }}";
-            const method = categoryId ? 'PUT' : 'POST';
 
             const submitButton = document.getElementById('save-category-btn');
 
@@ -659,16 +744,16 @@
             submitButton.disabled = true;
             const originalText = submitButton.innerHTML;
             submitButton.innerHTML = `
-                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                ${categoryId ? 'Actualizando...' : 'Guardando...'}
-            `;
+        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        ${categoryId ? 'Actualizando...' : 'Guardando...'}
+    `;
 
             try {
                 const response = await fetch(url, {
-                    method: method,
+                    method: 'POST', // SIEMPRE POST
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json',
@@ -679,13 +764,17 @@
                 const data = await response.json();
 
                 if (response.ok && data.success) {
-                    showNotification(
-                        categoryId ? 'Categoría actualizada exitosamente!' : 'Categoría creada exitosamente!',
-                        'success'
-                    );
+                        showNotification(
+                categoryId
+                    ? 'Categoría actualizada exitosamente!'
+                    : 'Categoría creada exitosamente!',
+                categoryId
+                    ? 'info'         // 🔵 azul al editar
+                    : 'success'      // 🟢 verde al crear
+            );
                     closeCategoryModal();
 
-                    // Recargar la página para ver los cambios
+                    // Recargar página
                     setTimeout(() => location.reload(), 1000);
                 } else {
                     if (data.errors) {
@@ -705,35 +794,51 @@
             }
         }
 
-        // Función para eliminar categoría
-        async function deleteCategory(categoryId) {
-            if (!confirm('¿Estás seguro de que quieres eliminar esta categoría?')) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`/categories/${categoryId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                    }
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    showNotification('Categoría eliminada correctamente', 'success');
-                    // Recargar la página para ver los cambios
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    showNotification(data.message || 'Error al eliminar la categoría', 'error');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showNotification('Error de conexión', 'error');
-            }
+    function confirmDeleteSweetAlert(categoryId, categoryName) {
+    Swal.fire({
+        title: `¿Eliminar categoría <strong>"${categoryName}"</strong>?`,
+        html: `Esta acción no se puede deshacer.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        backdrop: true,
+        allowOutsideClick: false,
+        customClass: {
+            popup: 'rounded-2xl',
+            confirmButton: 'px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-sm transition',
+            cancelButton: 'px-4 py-2 bg-gray-100 rounded-lg text-gray-700 hover:bg-gray-200 transition'
         }
+    }).then((result) => {
+        if (result.isConfirmed) {
+
+            // 🟥 Notificación de ELIMINACIÓN EXITOSA
+            showNotification(
+                `Categoría "${categoryName}" eliminada exitosamente.`,
+                'error' // rojo
+            );
+
+            // Enviar el formulario para eliminar
+            const form = document.getElementById(`delete-form-${categoryId}`);
+            if (form) {
+                form.submit();
+            } else {
+                window.location.href = `/categories/${categoryId}`;
+            }
+
+        } else {
+            // 🟧 Notificación de CANCELACIÓN (opcional)
+            showNotification(
+                'Eliminación cancelada.',
+                'warning' // naranja
+            );
+        }
+    });
+}
+
 
         // Función de notificación
         function showNotification(message, type = 'info') {
@@ -788,18 +893,26 @@
                 content.classList.add('scale-100', 'opacity-100');
             }, 50);
         }
+function closeQuickViewModal() {
 
-        function closeQuickViewModal() {
-            const modal = document.getElementById('quickview-modal');
-            const content = modal.querySelector('.modal-content');
+    // Notificación en naranja al cancelar
+    showNotification('Vista rápida cerrada.', 'warning');
 
-            content.classList.remove('scale-100', 'opacity-100');
-            content.classList.add('scale-95', 'opacity-0');
+    const modal = document.getElementById('quickview-modal');
+    const content = modal.querySelector('.modal-content');
 
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-        }
+    // Animación de salida
+    content.classList.remove('scale-100', 'opacity-100');
+    content.classList.add('scale-95', 'opacity-0');
+
+    // Ocultar después de animar
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        content.classList.remove('scale-95', 'opacity-0'); 
+    }, 300);
+}
+
+
 
         // Cerrar modales con ESC
         document.addEventListener('keydown', (e) => {

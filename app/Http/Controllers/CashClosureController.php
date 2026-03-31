@@ -52,7 +52,7 @@ class CashClosureController extends Controller
             'transfer' => $salesData->transfer,
             'credit' => $salesData->credit,
             'total' => $salesData->total,
-            'count' => $salesData->count
+            'count' => $salesData->count,
         ];
 
         return view('cash-closures.create', compact('salesSummary'));
@@ -62,16 +62,14 @@ class CashClosureController extends Controller
     {
         $userId = Auth::id();
 
-
         $request->validate([
 
             'physical_cash' => 'required|numeric|min:0',
-            'observations' => 'nullable|string|max:500'
+            'observations' => 'nullable|string|max:500',
         ]);
 
         try {
             DB::beginTransaction();
-
 
             $salesData = Sale::whereDate('created_at', today())
                 ->where('created_by', $userId)
@@ -117,7 +115,7 @@ class CashClosureController extends Controller
                     'sales_count' => $salesData->sales_count,
                     'average_ticket' => $salesData->sales_count > 0 ? $salesData->total_sales / $salesData->sales_count : 0,
                     'observations' => $request->observations,
-                    'status' => 'completed'
+                    'status' => 'completed',
                 ]);
             } else {
                 // Si no hay apertura pendiente, crear cierre normal
@@ -138,18 +136,21 @@ class CashClosureController extends Controller
                     'average_ticket' => $salesData->sales_count > 0 ? $salesData->total_sales / $salesData->sales_count : 0,
                     'observations' => $request->observations,
                     'user_id' => $userId,
-                    'status' => 'completed'
+                    'status' => 'completed',
                 ]);
             }
+            app(\App\Services\Finance\RegisterCashClosureIncomeService::class)
+                ->execute($closure);
 
             DB::commit();
 
-            return redirect()->route('cash-closures.show', $closure)
+            return redirect()->route('cash-closures.index', $closure)
                 ->with('success', 'Cierre de caja registrado exitosamente.');
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Error en cierre de caja: ' . $e->getMessage());
-            return back()->with('error', 'Error al registrar el cierre: ' . $e->getMessage())
+            \Log::error('Error en cierre de caja: '.$e->getMessage());
+
+            return back()->with('error', 'Error al registrar el cierre: '.$e->getMessage())
                 ->withInput();
         }
     }
@@ -193,7 +194,7 @@ class CashClosureController extends Controller
             'total' => $salesData->total,
             'count' => $salesData->count,
             'has_closure' => $todayClosure ? true : false,
-            'closure_status' => $todayClosure ? $todayClosure->status : null
+            'closure_status' => $todayClosure ? $todayClosure->status : null,
         ];
 
         return response()->json($summary);
@@ -220,11 +221,12 @@ class CashClosureController extends Controller
 
         return view('cash-closures.open');
     }
+
     public function storeOpen(Request $request)
     {
         $request->validate([
             'initial_cash' => 'required|numeric|min:0',
-            'observations' => 'nullable|string|max:500'
+            'observations' => 'nullable|string|max:500',
         ]);
 
         CashClosure::create([
@@ -232,7 +234,7 @@ class CashClosureController extends Controller
             'initial_cash' => $request->initial_cash,
             'user_id' => Auth::id(),
             'status' => 'pending',
-            'observations' => $request->observations
+            'observations' => $request->observations,
         ]);
 
         return redirect()->route('pos.index')

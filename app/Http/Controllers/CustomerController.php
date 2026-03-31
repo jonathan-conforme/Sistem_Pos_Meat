@@ -11,10 +11,23 @@ class CustomerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $search = $request->get('search');
+
+        $query = Customer::query();
+
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%")
+                  ->orWhere('cedula', 'like', "%{$search}%");
+        }
+
+        $customers = $query->orderBy('created_at', 'desc')->paginate(20);
+        $totalCustomers = Customer::count(); // Total global de clientes
+  $highlightId = session()->pull('highlight_customer_id');
+        return view('customer.create', compact('customers', 'totalCustomers', 'highlightId'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -22,8 +35,9 @@ class CustomerController extends Controller
     public function create()
 
     {
-        $customers = customer::paginate(10); // 10 por página, puedes cambiar el número
-        return view('customer.create', compact('customers'));
+        $customers = Customer::latest()->paginate(20);
+        $totalCustomers = Customer::count(); // Total global de clientes
+        return view('customer.create', compact('customers', 'totalCustomers'));
     }
 
     /**
@@ -51,10 +65,13 @@ class CustomerController extends Controller
         ]);
 
 
-        customer::create($validatedData);
+        $customer = Customer::create($validatedData);
 
-        return redirect()->route('customer.create')->with('success', 'Cliente registrado exitosamente.');
-    }
+        // Guardar el ID en sesión para resaltarlo
+        session(['highlight_customer_id' => $customer->id]);
+
+        return redirect()->route('customer.index', ['page' => 1])
+                         ->with('success', 'Cliente registrado exitosamente');   }
 
     /**
      * Display the specified resource.
@@ -81,7 +98,7 @@ class CustomerController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'cedula' => 'required|string|regex:/^[0-9]{6,15}$/|unique:customers,cedula,' . $customer->id,
-            'email' => 'required|email|max:255',
+            'email' => 'required|email|max:255' . $customer->id ,
             'phone' => 'required|digits_between:7,15',
             'address' => 'required|string|max:255',
             'comments' => 'nullable|string|max:1000',
@@ -97,15 +114,14 @@ class CustomerController extends Controller
             'address.required' => 'La dirección es obligatoria.',
         ]);
 
-        $customer->update($validatedData);
+           $customer->update($validatedData);
+// Obtener la página actual del request o usar la página 1 por defecto
+        $currentPage = $request->input('current_page', 1);
 
-        // Si usas peticiones AJAX puedes devolver JSON; si no, redirige:
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Cliente actualizado correctamente.', 'customer' => $customer]);
-        }
-
-        return redirect()->route('customer.create')->with('success', 'Cliente actualizado correctamente.');
+        return redirect()->route('customer.index', ['page' => $currentPage, 'edited' => $customer->id])
+                         ->with('info', 'Cliente actualizado exitosamente');
     }
+
 
 
     /**

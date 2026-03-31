@@ -19,8 +19,8 @@
 
         body {
             width: 58mm;
-            margin: 10 auto;
-            padding: 1mm;
+            margin: 0 !important;
+            padding: 1mm !important;
             font-size: 12px;
             line-height: 1.2;
             color: #000;
@@ -31,8 +31,8 @@
         .ticket {
             width: 100%;
             max-width: 56mm;
-            margin: 0 auto;
-            padding: 0;
+            margin-top: 0 !important;
+            padding-top: 0 !important;
 
         }
 
@@ -128,21 +128,24 @@
         @media print {
             body {
                 width: 58mm;
-                margin: 0;
-                padding: 0;
+                margin: 0 !important;
+                padding: 0 !important;
                 font-size: 12px;
+                transform: translateY(-5mm); 
             }
 
             .ticket {
                 width: 56mm;
-                padding: 0;
+                padding: 0 !important;
                 page-break-after: always;
             }
 
-            @page {
-                margin: 0;
-                size: 58mm auto;
-            }
+           @page {
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+}
 
             .no-print {
                 display: none;
@@ -152,37 +155,36 @@
 </head>
 
 <body>
-    @php
-    $totalPaid = $totalPaid ?? ($sale->payments->sum('amount') ?? 0);
-    $remaining = $remaining ?? (($sale->total ?? $sale->subtotal ?? 0) - $totalPaid);
-    @endphp
+@if($empresa && $empresa->logo)
+    <div style="text-align:center; margin-bottom:5px;">
+        
+            <img src="{{ public_path('storage/' . $empresa->logo) }}"
 
-    <div class="ticket">
-        <!-- Encabezado -->
-        <div class="header">
-            @if($empresa && $empresa->logo)
-            <div style="width:120px; height:220px; 
-                display:flex; align-items:center; justify-content:center; margin:0 auto;">
-                <img src="{{ public_path('storage/' . $empresa->logo) }}"
-                    alt="Logo"
-                    style="width:225px; object-fit:contain; border-radius:50%;">
-            </div>
-            @endif
+            width="150"
+            style="display:block; margin:0 auto;"
+        >
+    </div>
+@endif
 
+
+
+    
             <div class="divider"></div>
-            <div>{{ $empresa->matriz ?? 'Dirección no especificada' }}</div>
+            <div class="text-left">Dirección: {{ $empresa->matriz ?? 'Dirección no especificada' }}</div>
             <div class="text-left">RUC: {{ $empresa->ruc ?? '0000000000001' }}</div>
             <div class="text-left">Telf: {{ $empresa->telefono ?? 'N/A' }}</div>
+            
+        
             <div class="divider"></div>
 
             <!-- Información de la venta -->
             <div class="text-left">
-                <div class="bold">FACTURA: {{ $sale->sale_number }}</div>
-                <div><strong>Cliente:</strong> {{ $sale->customer->name ?? 'Consumidor Final' }}</div>
-                <div><strong>RUC/CI:</strong> {{ $sale->customer->cedula ?? '9999999999' }}</div>
-                <div><strong>Fecha:</strong> {{ $sale->created_at->format('d-m-Y') }}</div>
-                <div><strong>Hora:</strong> {{ $sale->created_at->format('H:i') }}</div>
-                <div><strong>Vendedor:</strong> {{ $sale->createdBy->name ?? 'Sistema' }}</div>
+                <div class="bold">Factura: {{ $sale->sale_number }}</div>
+                <div class="bold"><strong>Cliente:</strong> {{ $sale->customer->name ?? 'Consumidor Final' }}</div>
+                <div class="bold"><strong>RUC/CI:</strong> {{ $sale->customer->cedula ?? '9999999999' }}</div>
+                <div class="bold"><strong>Fecha:</strong> {{ $sale->created_at->format('d-m-Y') }}</div>
+                <div class="bold"><strong>Hora:</strong> {{ $sale->created_at->format('H:i') }}</div>
+                <div class="bold"><strong>Vendedor:</strong> {{ $sale->createdBy->name ?? 'Sistema' }}</div>
             </div>
         </div>
 
@@ -220,7 +222,7 @@
             </tr>
             <tr>
                 <td class="text-left">IVA (15%):</td>
-                <td class="text-right">${{ number_format($sale->tax, 2) }}</td>
+                <td class="text-right">$ 0.00</td>
             </tr>
             @if($sale->discount > 0)
             <tr>
@@ -242,44 +244,51 @@
                 </td>
             </tr>
         </table>
+@if($sale->payment_type === 'credit')
+    <div class="divider"></div>
+    <div class="text-center bold">DETALLE DE ABONOS</div>
+    
+    <!-- AVISO DE INTERÉS POR MORA -->
+    @if($remaining > 0)
+        <div class="text-center bold">
+            Este crédito genera intereses por mora si no se paga dentro de la fecha acordada.
+    </div>
+    @endif
 
-        @if($sale->payment_type === 'credit')
-        <div class="divider"></div>
-        <div class="text-center bold">DETALLE DE ABONOS</div>
-        <table>
-            <thead>
-                <tr>
-                    <th class="text-left">Fecha</th>
-                    <th class="text-right">Monto</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($sale->payments as $payment)
-                <tr>
-                    <td>{{ $payment->created_at->format('d-m-Y') }}</td>
-                    <td class="text-right">${{ number_format($payment->amount, 2) }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+    <table>
+        <thead>
+            <tr>
+                <th class="text-left">Fecha</th>
+                <th class="text-right">Monto</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($sale->payments as $payment)
+            <tr>
+                <td>{{ $payment->created_at->format('d-m-Y') }}</td>
+                <td class="text-right">${{ number_format($payment->amount, 2) }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
 
-        <table>
-            <tr>
-                <td class="text-left">Total Abonado:</td>
-                <td class="text-right">${{ number_format($totalPaid, 2) }}</td>
-            </tr>
-            <tr>
-                <td class="text-left bold">Saldo Pendiente:</td>
-                <td class="text-right bold">${{ number_format($remaining, 2) }}</td>
-            </tr>
-        </table>
-        @endif
+    <table>
+        <tr>
+            <td class="text-left">Total Abonado:</td>
+            <td class="text-right">${{ number_format($totalPaid, 2) }}</td>
+        </tr>
+    </table>
+
+    <div class="text-left bold">Saldo Pendiente: ${{ number_format($remaining, 2) }}</div>
+@endif
+
+        <br>
         <div class="divider"></div>
 
         <!-- Pie -->
         <div class="footer">
-            <div>**Gracias por su compra**</div>
-            <div>¡Vuelva pronto!</div>
+            <div>*Gracias por su compra*</div>
+           
             <!-- Código de barras con número de venta -->
             <img src="https://barcodeapi.org/api/code128/{{ $sale->sale_number }}"
                 alt="Barcode" style="width:200px; height:50px;">

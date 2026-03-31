@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Empresa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
 
 class EmpresaController extends Controller
 {
@@ -43,9 +45,15 @@ class EmpresaController extends Controller
             'contribuyente_especial' => 'nullable|string|max:255',
             'logo' => 'nullable|image|max:2048',
         ]);
-         if ($request->hasFile('logo')) {
-            $validated['logo'] = $request->file('logo')->store('logos', 'public');
-        }
+        if ($request->hasFile('logo')) {
+
+    // Guarda en storage/app/public/logos
+    $path = $request->file('logo')->store('logos', 'public');
+
+    // Guarda la ruta en la BD (ej: logos/abc123.png)
+    $validated['logo'] = $path;
+}
+
 
         Empresa::create($validated);
 
@@ -90,6 +98,13 @@ class EmpresaController extends Controller
      */
     public function destroy(Empresa $empresa)
     {
+         // borrar logo si existe
+    if ($empresa->logo && Storage::disk('public')->exists($empresa->logo)) {
+        Storage::disk('public')->delete($empresa->logo);
+    }
+
         //
+        $empresa->delete();
+        return redirect()->route('admin.empresa.index')->with('success', 'Empresa eliminada con éxito');
     }
 }
